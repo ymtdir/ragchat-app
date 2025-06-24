@@ -9,10 +9,17 @@ services:
       - "8000:8000"
     environment:
       - DATABASE_URL=postgresql://user:password@db:5432/ragchat
+      # ベクトル検索設定（オプション）
+      # - DEBUG=false
+      # - EMBEDDING_MODEL_NAME=intfloat/multilingual-e5-large
+      # - VECTOR_DB_PATH=./vector_db
+      # - DEFAULT_SEARCH_RESULTS=5
     depends_on:
       - db
     volumes:
       - ./backend:/app
+      - ./vector_db:/app/vector_db
+      - ./backend/.env:/app/.env:ro # .envファイルを読み取り専用でマウント
     restart: unless-stopped
 
   frontend:
