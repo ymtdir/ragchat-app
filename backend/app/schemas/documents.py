@@ -1,10 +1,10 @@
 """
-ベクトル化機能APIスキーマ
+文書管理機能APIスキーマ
 
 文書の追加と検索のためのリクエスト・レスポンスモデルを定義します。
 
 このモジュールでは、FastAPIのPydanticモデルを使用して、
-ベクトル化機能に関するAPIの入力と出力のスキーマを定義しています。
+文書管理機能に関するAPIの入力と出力のスキーマを定義しています。
 
 Typical usage example:
     request = AddDocumentRequest(
