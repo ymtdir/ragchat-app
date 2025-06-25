@@ -230,14 +230,12 @@ async def delete_all_documents(
         }
     """
     try:
-        print(f"[{datetime.datetime.now()}] 全文書削除処理開始")
+        logger.info("全文書削除処理開始")
 
         # 全文書を削除
         result = await document_service.delete_all_documents()
 
-        print(
-            f"[{datetime.datetime.now()}] 全文書削除処理完了: {result['deleted_count']}件削除"
-        )
+        logger.info(f"全文書削除処理完了: {result['deleted_count']}件削除")
 
         return DeleteAllDocumentsResponse(
             success=result["success"],
