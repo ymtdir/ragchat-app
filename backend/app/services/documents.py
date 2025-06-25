@@ -1,5 +1,5 @@
 """
-ベクトル化サービス
+文書管理サービス
 
 テキストの特徴量を算出し、ChromaDBに保存する機能を提供します。
 
@@ -13,7 +13,7 @@
     - CRUD操作（作成、読み取り、更新、削除）
 
 Typical usage example:
-    service = VectorService()
+    service = DocumentService()
     result = await service.add_document(
         id="doc_001",
         title="サンプル",
@@ -25,12 +25,15 @@ import chromadb
 from sentence_transformers import SentenceTransformer
 from typing import List, Dict, Any
 import uuid
-import datetime
 from ..config import settings
+from ..config.logging import get_logger
+import datetime
+
+logger = get_logger(__name__)
 
 
-class VectorService:
-    """ベクトル化サービスクラス
+class DocumentService:
+    """文書管理サービスクラス
 
     テキストをベクトルに変換し、ChromaDBに保存する機能を提供します。
 
@@ -44,7 +47,7 @@ class VectorService:
     """
 
     def __init__(self):
-        """VectorServiceの初期化
+        """DocumentServiceの初期化
 
         SentenceTransformerとChromaDBクライアントを初期化します。
         日本語対応の多言語モデル'intfloat/multilingual-e5-large'を使用します。
@@ -53,7 +56,7 @@ class VectorService:
             初期化時にモデルのダウンロードが発生する場合があります。
             初回実行時は時間がかかることがあります。
         """
-        print(f"[{datetime.datetime.now()}] VectorService初期化開始")
+        logger.info("DocumentService初期化開始")
 
         # 日本語に対応したEmbeddingモデルを使用
         self.embedding_model = SentenceTransformer(settings.embedding_model_name)
@@ -67,7 +70,7 @@ class VectorService:
             metadata={"description": settings.collection_description},
         )
 
-        print(f"[{datetime.datetime.now()}] VectorService初期化完了")
+        logger.info("DocumentService初期化完了")
 
     async def add_document(self, id: str, title: str, text: str) -> Dict[str, Any]:
         """文書をベクトル化してDBに保存
@@ -98,22 +101,18 @@ class VectorService:
             )
         """
         try:
-            print(f"[{datetime.datetime.now()}] ベクトル化開始: ID={id}")
+            logger.info(f"ベクトル化開始: ID={id}")
 
             # 既存データの確認
             existing = self.collection.get(ids=[id])
             if existing["ids"]:
-                print(
-                    f"[{datetime.datetime.now()}] 既存データが見つかりました: {existing}"
-                )
+                logger.debug(f"既存データが見つかりました: {existing}")
             else:
-                print(f"[{datetime.datetime.now()}] 新規データです")
+                logger.debug("新規データです")
 
             # テキストをベクトルに変換
             embedding = self.embedding_model.encode([text])[0].tolist()
-            print(
-                f"[{datetime.datetime.now()}] ベクトル化完了: 次元数={len(embedding)}"
-            )
+            logger.info(f"ベクトル化完了: 次元数={len(embedding)}")
 
             # メタデータの準備
             doc_metadata = {
@@ -122,7 +121,7 @@ class VectorService:
                 "text_length": len(text),
             }
 
-            print(f"[{datetime.datetime.now()}] ChromaDBへの保存開始")
+            logger.debug("ChromaDBへの保存開始")
 
             # upsertを使用して確実に上書き
             self.collection.upsert(
@@ -132,16 +131,16 @@ class VectorService:
                 ids=[id],
             )
 
-            print(f"[{datetime.datetime.now()}] ChromaDBへの保存完了: {id}")
+            logger.info(f"ChromaDBへの保存完了: {id}")
 
             # 保存後の確認
             saved_data = self.collection.get(ids=[id])
-            print(f"[{datetime.datetime.now()}] 保存後確認: {saved_data}")
+            logger.debug(f"保存後確認: {saved_data}")
 
             return {"vector_id": id, "embedding": embedding}
 
         except Exception as e:
-            print(f"[{datetime.datetime.now()}] エラー: {str(e)}")
+            logger.error(f"文書保存エラー: {str(e)}")
             raise Exception(f"文書の保存に失敗しました: {str(e)}")
 
     async def search_similar_documents(
@@ -175,7 +174,7 @@ class VectorService:
             )
         """
         try:
-            print(f"[{datetime.datetime.now()}] 類似文書検索開始")
+            logger.info("類似文書検索開始")
 
             # クエリをベクトル化
             query_embedding = self.embedding_model.encode([query])[0].tolist()
@@ -198,14 +197,12 @@ class VectorService:
                     }
                 )
 
-            print(
-                f"[{datetime.datetime.now()}] 類似文書検索完了: {len(similar_docs)}件"
-            )
+            logger.info(f"類似文書検索完了: {len(similar_docs)}件")
 
             return similar_docs
 
         except Exception as e:
-            print(f"[{datetime.datetime.now()}] エラー: {str(e)}")
+            logger.error(f"類似文書検索エラー: {str(e)}")
             raise Exception(f"類似文書の検索に失敗しました: {str(e)}")
 
     async def get_all_documents(self) -> List[Dict[str, Any]]:
@@ -229,7 +226,7 @@ class VectorService:
             all_docs = await service.get_all_documents()
         """
         try:
-            print(f"[{datetime.datetime.now()}] 全文書取得開始")
+            logger.info("全文書取得開始")
 
             # コレクションの全データを取得
             results = self.collection.get()
@@ -246,12 +243,12 @@ class VectorService:
                     }
                 )
 
-            print(f"[{datetime.datetime.now()}] 全文書取得完了: {len(all_docs)}件")
+            logger.info(f"全文書取得完了: {len(all_docs)}件")
 
             return all_docs
 
         except Exception as e:
-            print(f"[{datetime.datetime.now()}] エラー: {str(e)}")
+            logger.error(f"全文書取得エラー: {str(e)}")
             raise Exception(f"文書の取得に失敗しました: {str(e)}")
 
     async def get_collection_info(self) -> Dict[str, Any]:
@@ -306,16 +303,16 @@ class VectorService:
             success = await service.delete_document("doc_001")
         """
         try:
-            print(f"[{datetime.datetime.now()}] 文書削除開始: {document_id}")
+            logger.info(f"文書削除開始: {document_id}")
 
             self.collection.delete(ids=[document_id])
 
-            print(f"[{datetime.datetime.now()}] 文書削除完了: {document_id}")
+            logger.info(f"文書削除完了: {document_id}")
 
             return True
 
         except Exception as e:
-            print(f"[{datetime.datetime.now()}] エラー: {str(e)}")
+            logger.error(f"文書削除エラー: {str(e)}")
             raise Exception(f"文書の削除に失敗しました: {str(e)}")
 
     async def delete_all_documents(self) -> Dict[str, Any]:
@@ -341,7 +338,7 @@ class VectorService:
             result = await service.delete_all_documents()
         """
         try:
-            print(f"[{datetime.datetime.now()}] 全文書削除開始")
+            logger.info("全文書削除開始")
 
             # 削除前の文書数を取得
             count_before = self.collection.count()
@@ -358,12 +355,12 @@ class VectorService:
             count_after = self.collection.count()
             deleted_count = count_before - count_after
 
-            print(f"[{datetime.datetime.now()}] 全文書削除完了: {deleted_count}件削除")
+            logger.info(f"全文書削除完了: {deleted_count}件削除")
 
             return {"success": True, "deleted_count": deleted_count}
 
         except Exception as e:
-            print(f"[{datetime.datetime.now()}] エラー: {str(e)}")
+            logger.error(f"全文書削除エラー: {str(e)}")
             raise Exception(f"全文書の削除に失敗しました: {str(e)}")
 
     async def get_document(self, document_id: str) -> Dict[str, Any]:
@@ -390,7 +387,7 @@ class VectorService:
             document = await service.get_document("doc_001")
         """
         try:
-            print(f"[{datetime.datetime.now()}] 個別文書取得開始: {document_id}")
+            logger.info(f"個別文書取得開始: {document_id}")
 
             # 指定されたIDの文書を取得
             results = self.collection.get(ids=[document_id])
@@ -406,25 +403,25 @@ class VectorService:
                 "embedding": None,  # 実際の実装では埋め込みベクトルを返す
             }
 
-            print(f"[{datetime.datetime.now()}] 個別文書取得完了: {document_id}")
+            logger.info(f"個別文書取得完了: {document_id}")
 
             return document
 
         except Exception as e:
-            print(f"[{datetime.datetime.now()}] エラー: {str(e)}")
+            logger.error(f"個別文書取得エラー: {str(e)}")
             raise Exception(f"文書の取得に失敗しました: {str(e)}")
 
 
-def get_vector_service() -> VectorService:
-    """VectorServiceのインスタンスを取得
+def get_documents_service() -> DocumentService:
+    """DocumentServiceのインスタンスを取得
 
     Dependency Injection用のファクトリ関数です。
     FastAPIの依存性注入システムで使用されます。
 
     Returns:
-        VectorServiceの新しいインスタンス
+        DocumentServiceの新しいインスタンス
 
     Example:
-        service = get_vector_service()
+        service = get_documents_service()
     """
-    return VectorService()
+    return DocumentService()
