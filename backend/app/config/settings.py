@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     app_version: str = "1.0.0"
     debug: bool = False
 
+    # ログ設定
+    log_level: str = Field("INFO", pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$")
+
     # ベクトル化モデル設定（開発環境デフォルト）
     embedding_model_name: str = "intfloat/multilingual-e5-large"
 
