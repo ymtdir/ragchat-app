@@ -1,0 +1,46 @@
+name: Backend Test
+
+# トリガー設定：backendフォルダの変更時のみ実行
+on:
+  push:
+    paths: ["backend/**"]
+  pull_request:
+    paths: ["backend/**"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # リポジトリのコードをチェックアウト
+      - uses: actions/checkout@v4
+
+      # Python環境のセットアップ
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9" # Python 3.9を使用
+
+      # 依存関係のインストール
+      - name: Install dependencies
+        working-directory: ./backend # backendディレクトリで実行
+        run: |
+          python -m pip install --upgrade pip  # pipを最新に更新
+          # requirements.txtが存在する場合のみインストール
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          # Lint・カバレッジ用パッケージをインストール
+          pip install flake8 pytest-cov
+
+      # Lint実行
+      - name: Run lint
+        working-directory: ./backend
+        run: |
+          # コードの品質チェック
+          flake8 app/ tests/ --max-line-length=88
+
+      # テストとカバレッジの実行
+      - name: Run tests with coverage
+        working-directory: ./backend # backendディレクトリで実行
+        run: |
+          # カバレッジ測定付きでテスト実行
+          python -m pytest -v tests/ --cov=app --cov-report=term-missing
