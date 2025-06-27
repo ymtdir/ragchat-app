@@ -32,10 +32,16 @@ class AddDocumentRequest(BaseModel):
         text: ベクトル化対象のテキスト内容
     """
 
-    id: str = Field(..., description="文書の一意ID", example="vector-000")
-    title: str = Field(..., description="文書のタイトル", example="重要な文書")
+    id: str = Field(
+        ..., description="文書の一意ID", json_schema_extra={"example": "vector-000"}
+    )
+    title: str = Field(
+        ..., description="文書のタイトル", json_schema_extra={"example": "重要な文書"}
+    )
     text: str = Field(
-        ..., description="ベクトル化するテキスト", example="これは重要な文書です。"
+        ...,
+        description="ベクトル化するテキスト",
+        json_schema_extra={"example": "これは重要な文書です。"},
     )
 
 
@@ -49,8 +55,12 @@ class SearchDocumentsRequest(BaseModel):
         n_results: 取得する検索結果の最大数
     """
 
-    query: str = Field(..., description="検索クエリ", example="使用方法について")
-    n_results: int = Field(5, description="取得する結果数", example=5)
+    query: str = Field(
+        ..., description="検索クエリ", json_schema_extra={"example": "使用方法について"}
+    )
+    n_results: int = Field(
+        5, description="取得する結果数", json_schema_extra={"example": 5}
+    )
 
 
 # ===== Response Schemas =====
