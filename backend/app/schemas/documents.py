@@ -15,7 +15,7 @@ Typical usage example:
 """
 
 from pydantic import BaseModel, Field
-from typing import List, Dict, Any, Optional
+from typing import List, Optional
 from datetime import datetime
 
 # ===== Request Schemas =====
