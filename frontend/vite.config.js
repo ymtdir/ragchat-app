@@ -8,4 +8,13 @@ export default defineConfig({
     port: 3000,
     strictPort: true,
   },
+  test: {
+    environment: "jsdom",
+    globals: true,
+    setupFiles: ["./src/setupTests.js"],
+    coverage: {
+      reporter: ["text", "json", "html"],
+      exclude: ["node_modules/", "src/setupTests.js"],
+    },
+  },
 });
