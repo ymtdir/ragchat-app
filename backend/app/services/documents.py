@@ -24,7 +24,6 @@ Typical usage example:
 import chromadb
 from sentence_transformers import SentenceTransformer
 from typing import List, Dict, Any
-import uuid
 from ..config import settings
 from ..config.logging import get_logger
 import datetime
