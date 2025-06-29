@@ -1,5 +1,8 @@
 # RAG Chat App
 
+[![Backend Coverage](https://codecov.io/gh/ymtdir/ragchat-app/branch/main/graph/badge.svg?flag=backend)](https://codecov.io/gh/ymtdir/ragchat-app)
+[![Frontend Coverage](https://codecov.io/gh/ymtdir/ragchat-app/branch/main/graph/badge.svg?flag=frontend)](https://codecov.io/gh/ymtdir/ragchat-app)
+
 FastAPI × React × PostgreSQL × ChromaDB を使った RAG チャットアプリケーション
 
 > **全体統合開発用の手順です。個別開発は各ディレクトリの README を参照してください。**
