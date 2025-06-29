@@ -51,7 +51,7 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
-          file: ./frontend/coverage/coverage-final.json
+          files: ./frontend/coverage/coverage-final.json
           flags: frontend
           name: frontend-coverage
           token: ${{ secrets.CODECOV_TOKEN }}
