@@ -1,11 +1,17 @@
 name: Backend Test
 
-# トリガー設定：backendフォルダの変更時のみ実行
+# トリガー設定
 on:
   push:
-    paths: ["backend/**"]
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-test.yml"
+      - "codecov.yml"
   pull_request:
-    paths: ["backend/**"]
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-test.yml"
+      - "codecov.yml"
 
 jobs:
   test:

@@ -1,11 +1,17 @@
 name: Frontend Test
 
-# トリガー設定：frontendフォルダの変更時のみ実行
+# トリガー設定
 on:
   push:
-    paths: ["frontend/**"]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/frontend-test.yml"
+      - "codecov.yml"
   pull_request:
-    paths: ["frontend/**"]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/frontend-test.yml"
+      - "codecov.yml"
 
 jobs:
   test:
