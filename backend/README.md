@@ -1,5 +1,7 @@
 # RAG Chat API - Backend
 
+[![Backend Coverage](https://codecov.io/gh/ymtdir/ragchat-app/branch/main/graph/badge.svg?flag=backend)](https://codecov.io/gh/ymtdir/ragchat-app)
+
 FastAPI + ChromaDB を使ったベクトル検索 API
 
 ## 🛠️ 技術スタック
