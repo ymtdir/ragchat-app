@@ -40,3 +40,13 @@ jobs:
         working-directory: ./frontend # frontendディレクトリで実行
         run: |
           npm run test:coverage # カバレッジ測定付きでテスト実行
+
+      # カバレッジ結果をCodecovに送信
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          file: ./frontend/coverage/coverage-final.json
+          flags: frontend
+          name: frontend-coverage
+          token: ${{ secrets.CODECOV_TOKEN }}
+          working-directory: ./frontend
