@@ -1,0 +1,22 @@
+coverage:
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 5%
+    patch:
+      default:
+        target: 80%
+
+ignore:
+  - "backend/tests/*"
+  - "frontend/src/setupTests.js"
+  - "frontend/src/**/*.test.jsx"
+
+flags:
+  backend:
+    paths:
+      - backend/
+  frontend:
+    paths:
+      - frontend/

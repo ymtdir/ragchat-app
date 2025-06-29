@@ -1,5 +1,7 @@
 # RAG Chat App - Frontend
 
+[![Frontend Coverage](https://codecov.io/gh/ymtdir/ragchat-app/branch/main/graph/badge.svg?flag=frontend)](https://codecov.io/gh/ymtdir/ragchat-app)
+
 React + Vite を使ったフロントエンドアプリケーション
 
 ## 🛠️ 技術スタック

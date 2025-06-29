@@ -1,11 +1,17 @@
 name: Frontend Test
 
-# トリガー設定：frontendフォルダの変更時のみ実行
+# トリガー設定
 on:
   push:
-    paths: ["frontend/**"]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/frontend-test.yml"
+      - "codecov.yml"
   pull_request:
-    paths: ["frontend/**"]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/frontend-test.yml"
+      - "codecov.yml"
 
 jobs:
   test:
@@ -40,3 +46,13 @@ jobs:
         working-directory: ./frontend # frontendディレクトリで実行
         run: |
           npm run test:coverage # カバレッジ測定付きでテスト実行
+
+      # カバレッジ結果をCodecovに送信
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: ./frontend/coverage/coverage-final.json
+          flags: frontend
+          name: frontend-coverage
+          token: ${{ secrets.CODECOV_TOKEN }}
+          working-directory: ./frontend

@@ -1,11 +1,17 @@
 name: Backend Test
 
-# トリガー設定：backendフォルダの変更時のみ実行
+# トリガー設定
 on:
   push:
-    paths: ["backend/**"]
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-test.yml"
+      - "codecov.yml"
   pull_request:
-    paths: ["backend/**"]
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-test.yml"
+      - "codecov.yml"
 
 jobs:
   test:
@@ -42,5 +48,14 @@ jobs:
       - name: Run tests with coverage
         working-directory: ./backend # backendディレクトリで実行
         run: |
-          # カバレッジ測定付きでテスト実行
-          python -m pytest -v tests/ --cov=app --cov-report=term-missing
+          python -m pytest -v tests/ --cov=app --cov-report=term-missing --cov-report=xml
+
+      # カバレッジ結果をCodecovに送信
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: ./backend/coverage.xml
+          flags: backend
+          name: backend-coverage
+          token: ${{ secrets.CODECOV_TOKEN }}
+          working-directory: ./backend
