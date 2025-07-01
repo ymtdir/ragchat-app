@@ -1,16 +1,16 @@
 -- RAG Chat App データベース初期化スクリプト
 
--- チャット履歴テーブル（将来の拡張用）
-CREATE TABLE IF NOT EXISTS chat_history (
+-- ユーザーテーブル
+CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
-    message TEXT NOT NULL,
-    response TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    name VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL
 );
 
--- 初期データの挿入（テスト用）
-INSERT INTO chat_history (message, response) VALUES 
-('Hello', 'Hello! How can I help you today?');
+-- インデックスの作成
+CREATE INDEX IF NOT EXISTS idx_users_name ON users(name);
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 
 -- テーブル作成完了のログ
-\echo 'Database initialization completed.'; 
+\echo 'User management database initialization completed.'; 
