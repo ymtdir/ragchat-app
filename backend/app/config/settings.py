@@ -1,6 +1,10 @@
 """アプリケーション設定
 
-環境変数やハードコーディングされた設定値を管理します。
+2つのデータベースの接続設定と環境変数を管理します。
+
+データベース構成:
+    - PostgreSQL: 構造化データ（ユーザー、認証情報等）
+    - ChromaDB: ベクトルデータ（文書埋め込み、セマンティック検索）
 """
 
 from pydantic import Field, ConfigDict
@@ -21,15 +25,18 @@ class Settings(BaseSettings):
     # ログ設定
     log_level: str = Field("INFO", pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$")
 
-    # ベクトル化モデル設定（開発環境デフォルト）
-    embedding_model_name: str = "intfloat/multilingual-e5-large"
+    # データベース設定
+    database_url: str = "postgresql://user:password@localhost:5432/ragchat"
 
-    # ChromaDB設定（開発環境デフォルト）
+    # ChromaDB設定（ベクトルDB：セマンティック検索）
     vector_db_path: str = "./vector_db"
     collection_name: str = "documents"
     collection_description: str = "文書の特徴量を保存するコレクション"
 
-    # 検索設定（制約付き）
+    # ベクトル化モデル設定
+    embedding_model_name: str = "intfloat/multilingual-e5-large"
+
+    # 検索設定
     default_search_results: int = Field(5, ge=1, le=50)
     max_search_results: int = 50
     max_text_length: int = 10000
