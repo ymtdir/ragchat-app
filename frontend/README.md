@@ -1,165 +1,69 @@
-# RAG Chat App - Frontend
+# React + TypeScript + Vite
 
-[![Frontend Coverage](https://codecov.io/gh/ymtdir/ragchat-app/branch/main/graph/badge.svg?flag=frontend)](https://codecov.io/gh/ymtdir/ragchat-app)
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-React + Vite を使ったフロントエンドアプリケーション
+Currently, two official plugins are available:
 
-## 🛠️ 技術スタック
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-- **Framework**: React 18
-- **Build Tool**: Vite
-- **Testing**: Vitest + React Testing Library
-- **Language**: JavaScript/JSX
-- **Package Manager**: npm
+## Expanding the ESLint configuration
 
-## 🚀 個別開発での起動方法
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-フロントエンドのみを開発する場合の手順です。
+```js
+export default tseslint.config([
+  globalIgnores(["dist"]),
+  {
+    files: ["**/*.{ts,tsx}"],
+    extends: [
+      // Other configs...
 
-### 前提条件
+      // Remove tseslint.configs.recommended and replace with this
+      ...tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      ...tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      ...tseslint.configs.stylisticTypeChecked,
 
-- Node.js 18 以上がインストールされていること
-- npm がインストールされていること
-- ターミナル環境が使用可能であること
-  - Windows: PowerShell または Command Prompt
-  - macOS/Linux: Terminal
-
-### 1. Node.js のインストール確認
-
-**Windows/macOS/Linux:**
-
-```bash
-# Node.jsバージョン確認
-node --version
-
-# npmバージョン確認
-npm --version
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+]);
 ```
 
-Node.js がインストールされていない場合：
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-**macOS (Homebrew):**
+```js
+// eslint.config.js
+import reactX from "eslint-plugin-react-x";
+import reactDom from "eslint-plugin-react-dom";
 
-```bash
-brew install node
+export default tseslint.config([
+  globalIgnores(["dist"]),
+  {
+    files: ["**/*.{ts,tsx}"],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs["recommended-typescript"],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+]);
 ```
-
-**Windows:**
-
-- [Node.js 公式サイト](https://nodejs.org/) からインストーラーをダウンロード
-
-**Linux (Ubuntu/Debian):**
-
-```bash
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-sudo apt-get install -y nodejs
-```
-
-### 2. 依存関係のインストール
-
-**Windows:**
-
-```cmd
-# プロジェクトディレクトリに移動
-cd frontend
-
-# 依存関係のインストール
-npm install
-```
-
-**macOS/Linux:**
-
-```bash
-# プロジェクトディレクトリに移動
-cd frontend
-
-# 依存関係のインストール
-npm install
-```
-
-### 3. アプリケーションの起動
-
-**Windows:**
-
-```cmd
-# 開発サーバーの起動
-npm run dev
-```
-
-**macOS/Linux:**
-
-```bash
-# 開発サーバーの起動
-npm run dev
-```
-
-### 4. アクセス先
-
-| サービス             | URL                   |
-| -------------------- | --------------------- |
-| フロントエンドアプリ | http://localhost:3000 |
-
-## 🧪 テスト実行
-
-### テストコマンド
-
-**基本的なテスト実行:**
-
-```bash
-# 通常のテスト（一回実行）
-npm test
-
-# ウォッチモードでテスト実行
-npm run test:watch
-
-# カバレッジ付きテスト
-npm run test:coverage
-```
-
-**Windows:**
-
-```cmd
-# PowerShell または Command Prompt
-npm test
-npm run test:coverage
-```
-
-**macOS/Linux:**
-
-```bash
-npm test
-npm run test:coverage
-```
-
-### カバレッジレポートの確認
-
-```bash
-# カバレッジ実行後、ブラウザでレポート確認
-npm run test:coverage
-
-# coverage/index.html をブラウザで開く
-```
-
-**Windows:**
-
-```cmd
-# PowerShellの場合
-start coverage/index.html
-
-# Command Promptの場合
-coverage\index.html
-```
-
-**macOS:**
-
-```bash
-open coverage/index.html
-```
-
-**Linux:**
-
-```bash
-xdg-open coverage/index.html
-```
-
-### テストファイルの場所

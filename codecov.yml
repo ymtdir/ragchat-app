@@ -9,9 +9,9 @@ coverage:
         target: 80%
 
 ignore:
-  - "backend/tests/*"
-  - "frontend/src/setupTests.js"
-  - "frontend/src/**/*.test.jsx"
+  - "backend/tests/**"
+  - "frontend/src/**/*.test.ts"
+  - "frontend/src/**/*.test.tsx"
 
 flags:
   backend:
