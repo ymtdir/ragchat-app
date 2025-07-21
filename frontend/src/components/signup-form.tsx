@@ -9,11 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
-export function SignInForm() {
+export function SignUpForm() {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle>Sign in to your account</CardTitle>
+        <CardTitle>Create an account</CardTitle>
       </CardHeader>
       <CardContent>
         <form>
@@ -31,17 +31,21 @@ export function SignInForm() {
               <Label htmlFor="password">Password</Label>
               <Input id="password" type="password" required />
             </div>
+            <div className="grid gap-2">
+              <Label htmlFor="confirm-password">Confirm password</Label>
+              <Input id="confirm-password" type="password" required />
+            </div>
           </div>
         </form>
       </CardContent>
       <CardFooter className="flex-col gap-2 mt-2">
         <Button type="submit" className="w-full">
-          Sign in
+          Sign up
         </Button>
         <div className="mt-4 text-center text-sm">
-          Don&apos;t have an account?{" "}
-          <a href="/signup" className="underline underline-offset-4">
-            Sign up
+          Already have an account?{" "}
+          <a href="/signin" className="underline underline-offset-4">
+            Sign in
           </a>
         </div>
       </CardFooter>
