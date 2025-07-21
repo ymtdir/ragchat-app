@@ -15,4 +15,4 @@ COPY . .
 EXPOSE 3000
 
 # 開発サーバーを起動（--hostでDocker環境に対応）
-CMD ["npm", "run", "dev"] 
+CMD ["npm", "run", "dev", "--", "--host"] 
