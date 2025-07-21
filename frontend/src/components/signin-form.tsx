@@ -31,13 +31,13 @@ export function SignInForm() {
               <Label htmlFor="password">Password</Label>
               <Input id="password" type="password" required />
             </div>
+            <Button type="submit" className="w-full mt-2">
+              Sign in
+            </Button>
           </div>
         </form>
       </CardContent>
       <CardFooter className="flex-col gap-2 mt-2">
-        <Button type="submit" className="w-full">
-          Sign in
-        </Button>
         <div className="mt-4 text-center text-sm">
           Don&apos;t have an account?{" "}
           <a href="/signup" className="underline underline-offset-4">
