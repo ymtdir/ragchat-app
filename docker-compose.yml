@@ -39,20 +39,19 @@ services:
     image: postgres:15
     environment:
       - POSTGRES_DB=ragchat
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=P@ssw0rd
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./db:/docker-entrypoint-initdb.d
     restart: unless-stopped
 
   pgadmin:
     image: dpage/pgadmin4:latest
     environment:
       - PGADMIN_DEFAULT_EMAIL=admin@example.com
-      - PGADMIN_DEFAULT_PASSWORD=admin
+      - PGADMIN_DEFAULT_PASSWORD=P@ssw0rd
     ports:
       - "8080:80"
     depends_on:
