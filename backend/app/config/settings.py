@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     log_level: str = Field("INFO", pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$")
 
     # データベース設定
-    database_url: str = "postgresql://user:password@localhost:5432/ragchat"
+    database_url: str = "postgresql://admin:password@localhost:5432/ragchat"
 
     # ChromaDB設定（ベクトルDB：セマンティック検索）
     vector_db_path: str = "./vector_db"

@@ -7,13 +7,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
-    environment:
-      - DATABASE_URL=postgresql://user:password@db:5432/ragchat
-      # ベクトル検索設定（オプション）
-      # - DEBUG=false
-      # - EMBEDDING_MODEL_NAME=intfloat/multilingual-e5-large
-      # - VECTOR_DB_PATH=./vector_db
-      # - DEFAULT_SEARCH_RESULTS=5
+    env_file:
+      - ./backend/.env
     depends_on:
       - db
     volumes:
@@ -37,10 +32,8 @@ services:
 
   db:
     image: postgres:15
-    environment:
-      - POSTGRES_DB=ragchat
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=P@ssw0rd
+    env_file:
+      - ./backend/.env
     ports:
       - "5432:5432"
     volumes:
@@ -49,9 +42,8 @@ services:
 
   pgadmin:
     image: dpage/pgadmin4:latest
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=admin@example.com
-      - PGADMIN_DEFAULT_PASSWORD=P@ssw0rd
+    env_file:
+      - ./backend/.env
     ports:
       - "8080:80"
     depends_on:
