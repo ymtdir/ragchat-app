@@ -1,68 +1,16 @@
 import { render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
-import { expect, test, describe } from "vitest";
-import { SignInForm } from "@/components/signin-form";
-import { SignUpForm } from "@/components/signup-form";
+import { expect, test, describe, vi, beforeEach } from "vitest";
+import { SignUpForm } from "./signup-form";
 
-describe("サインインフォーム", () => {
-  test("フォームフィールドが正しく表示される", () => {
-    render(<SignInForm />);
+// fetchのモック
+global.fetch = vi.fn();
 
-    expect(screen.getByText("Sign in to your account")).toBeTruthy();
-    expect(screen.getByLabelText("Email")).toBeTruthy();
-    expect(screen.getByLabelText("Password")).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Sign in" })).toBeTruthy();
-    expect(screen.getByText("Don't have an account?")).toBeTruthy();
-    expect(screen.getByText("Sign up")).toBeTruthy();
+describe("SignUpFormコンポーネント", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
-  test("フォームフィールドに入力できる", async () => {
-    const user = userEvent.setup();
-    render(<SignInForm />);
-
-    const emailInput = screen.getByLabelText("Email");
-    const passwordInput = screen.getByLabelText("Password");
-
-    await user.type(emailInput, "test@example.com");
-    await user.type(passwordInput, "password123");
-
-    expect(emailInput).toHaveValue("test@example.com");
-    expect(passwordInput).toHaveValue("password123");
-  });
-
-  test("必須フィールドが正しく設定されている", () => {
-    render(<SignInForm />);
-
-    const emailInput = screen.getByLabelText("Email");
-    const passwordInput = screen.getByLabelText("Password");
-
-    expect(emailInput).toHaveAttribute("required");
-    expect(passwordInput).toHaveAttribute("required");
-  });
-
-  test("emailフィールドが正しいタイプを持つ", () => {
-    render(<SignInForm />);
-
-    const emailInput = screen.getByLabelText("Email");
-    expect(emailInput).toHaveAttribute("type", "email");
-  });
-
-  test("passwordフィールドが正しいタイプを持つ", () => {
-    render(<SignInForm />);
-
-    const passwordInput = screen.getByLabelText("Password");
-    expect(passwordInput).toHaveAttribute("type", "password");
-  });
-
-  test("フォーム送信ボタンが正しく表示される", () => {
-    render(<SignInForm />);
-
-    const submitButton = screen.getByRole("button", { name: "Sign in" });
-    expect(submitButton).toHaveAttribute("type", "submit");
-  });
-});
-
-describe("サインアップフォーム", () => {
   test("フォームが正しくレンダリングされる", () => {
     render(<SignUpForm />);
 
@@ -166,5 +114,88 @@ describe("サインアップフォーム", () => {
 
     // エラーメッセージが表示されないことを確認
     expect(screen.queryByText("Passwords do not match")).toBeNull();
+  });
+
+  test("API呼び出しが正しく行われる", async () => {
+    const mockFetch = vi.mocked(fetch);
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({}),
+    } as Response);
+
+    const user = userEvent.setup();
+    render(<SignUpForm />);
+
+    const nameInput = screen.getByLabelText("Name");
+    const emailInput = screen.getByLabelText("Email");
+    const passwordInput = screen.getByLabelText("Password");
+    const confirmPasswordInput = screen.getByLabelText("Confirm password");
+    const submitButton = screen.getByRole("button", { name: "Sign up" });
+
+    await user.type(nameInput, "Test User");
+    await user.type(emailInput, "test@example.com");
+    await user.type(passwordInput, "password123");
+    await user.type(confirmPasswordInput, "password123");
+
+    await user.click(submitButton);
+
+    expect(mockFetch).toHaveBeenCalledWith("/api/users/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: "Test User",
+        email: "test@example.com",
+        password: "password123",
+      }),
+    });
+  });
+
+  test("APIエラー時にエラーメッセージが表示される", async () => {
+    const mockFetch = vi.mocked(fetch);
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      json: async () => ({ detail: "Email already exists" }),
+    } as Response);
+
+    const user = userEvent.setup();
+    render(<SignUpForm />);
+
+    const nameInput = screen.getByLabelText("Name");
+    const emailInput = screen.getByLabelText("Email");
+    const passwordInput = screen.getByLabelText("Password");
+    const confirmPasswordInput = screen.getByLabelText("Confirm password");
+    const submitButton = screen.getByRole("button", { name: "Sign up" });
+
+    await user.type(nameInput, "Test User");
+    await user.type(emailInput, "test@example.com");
+    await user.type(passwordInput, "password123");
+    await user.type(confirmPasswordInput, "password123");
+
+    await user.click(submitButton);
+
+    expect(screen.getByText("Email already exists")).toBeTruthy();
+  });
+
+  test("ネットワークエラー時にエラーメッセージが表示される", async () => {
+    const mockFetch = vi.mocked(fetch);
+    mockFetch.mockRejectedValueOnce(new Error("Network error"));
+
+    const user = userEvent.setup();
+    render(<SignUpForm />);
+
+    const nameInput = screen.getByLabelText("Name");
+    const emailInput = screen.getByLabelText("Email");
+    const passwordInput = screen.getByLabelText("Password");
+    const confirmPasswordInput = screen.getByLabelText("Confirm password");
+    const submitButton = screen.getByRole("button", { name: "Sign up" });
+
+    await user.type(nameInput, "Test User");
+    await user.type(emailInput, "test@example.com");
+    await user.type(passwordInput, "password123");
+    await user.type(confirmPasswordInput, "password123");
+
+    await user.click(submitButton);
+
+    expect(screen.getByText("通信エラーが発生しました")).toBeTruthy();
   });
 });
