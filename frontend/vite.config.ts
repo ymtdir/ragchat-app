@@ -13,11 +13,11 @@ export default defineConfig({
     },
   },
   server: {
-    host: "0.0.0.0",
-    port: 3000,
+    host: process.env.VITE_HOST || "0.0.0.0",
+    port: parseInt(process.env.VITE_PORT || "3000"),
     proxy: {
       "/api": {
-        target: "http://backend:8000",
+        target: process.env.VITE_API_URL || "http://backend:8000",
         changeOrigin: true,
         secure: false,
       },
