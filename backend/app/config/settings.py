@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     """アプリケーション設定クラス"""
 
     # モデル設定（新形式）
-    model_config = ConfigDict(env_file="../.env", env_file_encoding="utf-8")
+    model_config = ConfigDict(env_file_encoding="utf-8")
 
     # アプリケーション基本設定
     app_name: str = "RAG Chat API"

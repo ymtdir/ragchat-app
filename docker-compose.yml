@@ -14,7 +14,6 @@ services:
     volumes:
       - ./backend:/app
       - ./vector_db:/app/vector_db
-      - ./backend/.env:/app/.env:ro # .envファイルを読み取り専用でマウント
     restart: unless-stopped
 
   frontend:
@@ -23,11 +22,11 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
+    env_file:
+      - ./frontend/.env
     volumes:
-      - ./frontend:/app
       - /app/node_modules
-    environment:
-      - CHOKIDAR_USEPOLLING=true
+      - ./frontend:/app
     restart: unless-stopped
 
   db:

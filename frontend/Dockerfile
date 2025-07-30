@@ -8,9 +8,6 @@ COPY package.json package-lock.json* ./
 # 依存関係をインストール
 RUN npm ci
 
-# ソースコードをコピー
-COPY . .
-
 # ポート3000を公開
 EXPOSE 3000
 
