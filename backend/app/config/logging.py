@@ -9,10 +9,7 @@ import logging
 import logging.config
 import os
 from typing import Dict, Any
-from dotenv import load_dotenv
-
-# .envファイルから環境変数を読み込む
-load_dotenv()
+from .settings import settings
 
 
 class LoggingConfig:
@@ -30,9 +27,9 @@ class LoggingConfig:
     """
 
     # 基本設定
-    LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+    LOG_LEVEL = settings.log_level
     LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    LOG_FILENAME = os.getenv("LOG_FILENAME", "logs/app.log")  # 出力先パス
+    LOG_FILENAME = "logs/app.log"  # 出力先パス
 
     @classmethod
     def setup_log_directory(cls) -> None:
