@@ -19,6 +19,9 @@ email-validator>=2.0.0
 # パスワードハッシュ化
 passlib[bcrypt]>=1.7.4
 
+# JWT認証
+python-jose[cryptography]>=3.3.0
+
 # テスト関連の依存関係
 pytest==8.3.5
 pytest-cov==4.0.0

@@ -3,7 +3,7 @@
 リクエスト/レスポンスのバリデーションとシリアライゼーションを行います。
 """
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr
 
 
 class UserCreate(BaseModel):
@@ -18,7 +18,7 @@ class UserCreate(BaseModel):
     """
 
     name: str = Field(..., min_length=3, max_length=50, description="ユーザー名")
-    email: str = Field(..., description="メールアドレス")
+    email: EmailStr = Field(..., description="メールアドレス")
     password: str = Field(..., min_length=8, description="パスワード")
 
     class Config:
