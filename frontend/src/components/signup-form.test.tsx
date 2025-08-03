@@ -6,6 +6,16 @@ import { SignUpForm } from "./signup-form";
 // fetchのモック
 global.fetch = vi.fn();
 
+// React Routerのモック
+const mockNavigate = vi.fn();
+vi.mock("react-router-dom", async () => {
+  const actual = await vi.importActual("react-router-dom");
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  };
+});
+
 describe("SignUpFormコンポーネント", () => {
   beforeEach(() => {
     vi.clearAllMocks();

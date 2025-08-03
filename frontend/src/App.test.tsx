@@ -1,8 +1,25 @@
 import { render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
-import { expect, test, describe } from "vitest";
+import { expect, test, describe, vi, beforeEach } from "vitest";
+import { BrowserRouter } from "react-router-dom";
 import { SignInForm } from "@/components/signin-form";
 import { SignUpForm } from "@/components/signup-form";
+import App from "./App";
+
+// React Routerのモック
+const mockNavigate = vi.fn();
+vi.mock("react-router-dom", async () => {
+  const actual = await vi.importActual("react-router-dom");
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  };
+});
+
+// テスト用のラッパーコンポーネント
+const TestWrapper = ({ children }: { children: React.ReactNode }) => (
+  <BrowserRouter>{children}</BrowserRouter>
+);
 
 describe("サインインフォーム", () => {
   test("フォームフィールドが正しく表示される", () => {
@@ -166,5 +183,45 @@ describe("サインアップフォーム", () => {
 
     // エラーメッセージが表示されないことを確認
     expect(screen.queryByText("Passwords do not match")).toBeNull();
+  });
+});
+
+describe("App", () => {
+  test("アプリケーションが正常にレンダリングされる", () => {
+    render(<App />);
+
+    // ルーターが正しく設定されていることを確認
+    expect(screen.getByText("Sign in to your account")).toBeTruthy();
+  });
+});
+
+describe("認証統合テスト", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    localStorage.clear();
+  });
+
+  test("サインインフォームがRouterコンテキスト内で正常に動作する", () => {
+    render(
+      <TestWrapper>
+        <SignInForm />
+      </TestWrapper>
+    );
+
+    expect(screen.getByText("Sign in to your account")).toBeTruthy();
+    expect(screen.getByLabelText("Email")).toBeTruthy();
+    expect(screen.getByLabelText("Password")).toBeTruthy();
+  });
+
+  test("サインアップフォームがRouterコンテキスト内で正常に動作する", () => {
+    render(
+      <TestWrapper>
+        <SignUpForm />
+      </TestWrapper>
+    );
+
+    expect(screen.getByText("Create an account")).toBeTruthy();
+    expect(screen.getByLabelText("Name")).toBeTruthy();
+    expect(screen.getByLabelText("Email")).toBeTruthy();
   });
 });
