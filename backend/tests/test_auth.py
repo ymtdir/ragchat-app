@@ -216,7 +216,9 @@ class TestAuthService:
             mock_authenticate.return_value = mock_user
 
             # 認証テスト
-            result = AuthService.authenticate_user(mock_db, "test@example.com", "password123")
+            result = AuthService.authenticate_user(
+                mock_db, "test@example.com", "password123"
+            )
 
             # 結果の検証
             assert result == mock_user

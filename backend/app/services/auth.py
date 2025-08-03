@@ -26,7 +26,9 @@ class AuthService:
     """
 
     @staticmethod
-    def get_token_from_header(authorization: Optional[str] = Header(None)) -> Optional[str]:
+    def get_token_from_header(
+        authorization: Optional[str] = Header(None)
+    ) -> Optional[str]:
         """Authorizationヘッダーからトークンを取得する
 
         Args:
@@ -67,7 +69,9 @@ class AuthService:
         return user
 
     @staticmethod
-    def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+    def create_access_token(
+        data: dict, expires_delta: Optional[timedelta] = None
+    ) -> str:
         """アクセストークンを作成する
 
         Args:
