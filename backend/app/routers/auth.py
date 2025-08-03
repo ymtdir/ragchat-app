@@ -7,7 +7,6 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from ..config.database import get_db
 from ..schemas.auth import UserLogin, Token
-from ..schemas.users import UserResponse
 from ..services.auth import AuthService
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
@@ -35,7 +34,7 @@ async def login(user_login: UserLogin, db: Session = Depends(get_db)):
         )
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="ログイン処理中にエラーが発生しました"
@@ -52,4 +51,4 @@ async def logout():
     Returns:
         dict: ログアウト成功メッセージ
     """
-    return {"message": "ログアウトしました。クライアント側でトークンを削除してください。"} 
+    return {"message": "ログアウトしました。クライアント側でトークンを削除してください。"}

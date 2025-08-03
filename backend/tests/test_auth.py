@@ -17,10 +17,8 @@
     coverage html
 """
 
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 from fastapi.testclient import TestClient
-from fastapi import HTTPException
-from unittest.mock import patch
 
 from app.main import app
 from app.config.database import get_db
@@ -40,10 +38,7 @@ class TestLogin:
         # モックデータベースセッション
         mock_db = MagicMock()
 
-        # モックユーザーオブジェクト
-        mock_user = User(
-            id=1, name="testuser", email="test@example.com", password="hashed_password"
-        )
+        # モックユーザーオブジェクト（未使用のため削除）
 
         # AuthServiceのメソッドをモック化
         with patch('app.services.auth.AuthService.login_user') as mock_login:
@@ -225,7 +220,9 @@ class TestAuthService:
 
             # 結果の検証
             assert result == mock_user
-            mock_authenticate.assert_called_once_with(mock_db, "test@example.com", "password123")
+            mock_authenticate.assert_called_once_with(
+                mock_db, "test@example.com", "password123"
+            )
 
     def test_authenticate_user_invalid_email(self):
         """ユーザー認証の異常系テスト（存在しないメールアドレス）
@@ -240,11 +237,15 @@ class TestAuthService:
             mock_authenticate.return_value = None
 
             # 認証テスト
-            result = AuthService.authenticate_user(mock_db, "nonexistent@example.com", "password123")
+            result = AuthService.authenticate_user(
+                mock_db, "nonexistent@example.com", "password123"
+            )
 
             # 結果の検証
             assert result is None
-            mock_authenticate.assert_called_once_with(mock_db, "nonexistent@example.com", "password123")
+            mock_authenticate.assert_called_once_with(
+                mock_db, "nonexistent@example.com", "password123"
+            )
 
     def test_authenticate_user_invalid_password(self):
         """ユーザー認証の異常系テスト（間違ったパスワード）
@@ -259,11 +260,15 @@ class TestAuthService:
             mock_authenticate.return_value = None
 
             # 認証テスト
-            result = AuthService.authenticate_user(mock_db, "test@example.com", "wrongpassword")
+            result = AuthService.authenticate_user(
+                mock_db, "test@example.com", "wrongpassword"
+            )
 
             # 結果の検証
             assert result is None
-            mock_authenticate.assert_called_once_with(mock_db, "test@example.com", "wrongpassword")
+            mock_authenticate.assert_called_once_with(
+                mock_db, "test@example.com", "wrongpassword"
+            )
 
     def test_create_access_token(self):
         """アクセストークン作成のテスト

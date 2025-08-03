@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 from sqlalchemy.orm import Session
 from jose import JWTError, jwt
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, Header
 from ..models.user import User
 from ..schemas.auth import UserLogin, TokenData
 from .users import UserService
@@ -26,6 +26,24 @@ class AuthService:
     """
 
     @staticmethod
+    def get_token_from_header(authorization: Optional[str] = Header(None)) -> Optional[str]:
+        """Authorizationヘッダーからトークンを取得する
+
+        Args:
+            authorization: Authorizationヘッダーの値
+
+        Returns:
+            Optional[str]: トークン（Bearer プレフィックスを除いたもの）
+        """
+        if not authorization:
+            return None
+
+        if not authorization.startswith("Bearer "):
+            return None
+
+        return authorization.replace("Bearer ", "")
+
+    @staticmethod
     def authenticate_user(db: Session, email: str, password: str) -> Optional[User]:
         """ユーザー認証を行う
 
@@ -41,11 +59,11 @@ class AuthService:
         user = UserService.get_user_by_email(db, email)
         if not user:
             return None
-        
+
         # パスワードを検証
         if not UserService.verify_password(password, user.password):
             return None
-        
+
         return user
 
     @staticmethod
@@ -60,15 +78,17 @@ class AuthService:
             str: JWTアクセストークン
         """
         to_encode = data.copy()
-        
+
         if expires_delta:
             expire = datetime.utcnow() + expires_delta
         else:
-            expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-        
+            expire = datetime.utcnow() + timedelta(
+                minutes=ACCESS_TOKEN_EXPIRE_MINUTES
+            )
+
         to_encode.update({"exp": expire})
         encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-        
+
         return encoded_jwt
 
     @staticmethod
@@ -106,20 +126,22 @@ class AuthService:
             HTTPException: 認証失敗時
         """
         # ユーザー認証
-        user = AuthService.authenticate_user(db, user_login.email, user_login.password)
+        user = AuthService.authenticate_user(
+            db, user_login.email, user_login.password
+        )
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="メールアドレスまたはパスワードが正しくありません",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-        
+
         # アクセストークンを作成
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = AuthService.create_access_token(
             data={"sub": user.email}, expires_delta=access_token_expires
         )
-        
+
         return {
             "access_token": access_token,
             "token_type": "bearer",
@@ -128,4 +150,4 @@ class AuthService:
                 "name": user.name,
                 "email": user.email
             }
-        } 
+        }

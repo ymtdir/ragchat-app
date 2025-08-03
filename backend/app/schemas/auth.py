@@ -65,4 +65,4 @@ class TokenData(BaseModel):
         email: メールアドレス（オプション）
     """
 
-    email: str | None = None 
+    email: str | None = None
