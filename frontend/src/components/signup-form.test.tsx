@@ -1,7 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { expect, test, describe, vi, beforeEach } from "vitest";
-import { BrowserRouter } from "react-router-dom";
 import { SignUpForm } from "./signup-form";
 
 // fetchのモック
@@ -16,11 +15,6 @@ vi.mock("react-router-dom", async () => {
     useNavigate: () => mockNavigate,
   };
 });
-
-// テスト用のラッパーコンポーネント
-const TestWrapper = ({ children }: { children: React.ReactNode }) => (
-  <BrowserRouter>{children}</BrowserRouter>
-);
 
 describe("SignUpFormコンポーネント", () => {
   beforeEach(() => {
