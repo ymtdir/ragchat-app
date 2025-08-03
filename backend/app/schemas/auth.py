@@ -3,6 +3,7 @@
 JWT認証とログイン機能のリクエスト/レスポンスのバリデーションとシリアライゼーションを行います。
 """
 
+from typing import Optional
 from pydantic import BaseModel, Field, EmailStr
 
 
@@ -65,4 +66,4 @@ class TokenData(BaseModel):
         email: メールアドレス（オプション）
     """
 
-    email: str | None = None
+    email: Optional[str] = None
