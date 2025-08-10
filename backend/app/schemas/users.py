@@ -59,3 +59,32 @@ class UserResponse(BaseModel):
         json_schema_extra = {
             "example": {"id": 1, "name": "user", "email": "user@example.com"}
         }
+
+
+class UsersResponse(BaseModel):
+    """全ユーザーレスポンス用スキーマ
+
+    APIレスポンスで返す全ユーザーデータの形式を定義します。
+    セキュリティのためパスワードは含めません。
+
+    Attributes:
+        users: ユーザーリスト
+        total: ユーザー総数
+    """
+
+    users: list[UserResponse]
+    total: int
+
+    class Config:
+        """設定クラス"""
+
+        # JSON Schema用のサンプルデータ
+        json_schema_extra = {
+            "example": {
+                "users": [
+                    {"id": 1, "name": "user1", "email": "user1@example.com"},
+                    {"id": 2, "name": "user2", "email": "user2@example.com"},
+                ],
+                "total": 2,
+            }
+        }

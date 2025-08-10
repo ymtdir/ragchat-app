@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
 from ..config.database import get_db
-from ..schemas.users import UserCreate, UserResponse
+from ..schemas.users import UserCreate, UserResponse, UsersResponse
 from ..services.users import UserService
 
 # ユーザー管理用ルーター
@@ -69,6 +69,31 @@ async def create_user(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="ユーザー名またはメールアドレスが既に使用されています",
         )
+
+
+@router.get(
+    "/",
+    response_model=UsersResponse,
+    summary="全ユーザー取得",
+    description="登録されている全ユーザーの情報を取得します。",
+    response_description="全ユーザー情報と総数",
+)
+async def get_all_users(
+    db: Session = Depends(get_db),  # データベースセッション（依存性注入）
+) -> UsersResponse:
+    """全ユーザー情報を取得する
+
+    Args:
+        db: データベースセッション（依存性注入）
+
+    Returns:
+        UsersResponse: 全ユーザー情報と総数
+    """
+
+    users = UserService.get_all_users(db)
+    user_responses = [UserResponse.model_validate(user) for user in users]
+    
+    return UsersResponse(users=user_responses, total=len(user_responses))
 
 
 @router.get(
