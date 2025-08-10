@@ -1,4 +1,11 @@
-import { Calendar, Home, Inbox, Search, Settings } from "lucide-react";
+import {
+  LayoutDashboard,
+  Users,
+  Settings,
+  LogOut,
+  FileText,
+} from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
 
 import {
   Sidebar,
@@ -9,29 +16,25 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarFooter,
 } from "@/components/ui/sidebar";
 
 // Menu items.
 const items = [
   {
-    title: "Home",
-    url: "#",
-    icon: Home,
+    title: "Dashboard",
+    url: "/dashboard",
+    icon: LayoutDashboard,
   },
   {
-    title: "Inbox",
+    title: "Users",
     url: "#",
-    icon: Inbox,
+    icon: Users,
   },
   {
-    title: "Calendar",
+    title: "Documents",
     url: "#",
-    icon: Calendar,
-  },
-  {
-    title: "Search",
-    url: "#",
-    icon: Search,
+    icon: FileText,
   },
   {
     title: "Settings",
@@ -41,12 +44,18 @@ const items = [
 ];
 
 export function AppSidebar() {
+  const { logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+  };
+
   return (
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
-          <SidebarGroupContent>
+          <SidebarGroupLabel>RagChat App</SidebarGroupLabel>
+          <SidebarGroupContent className="pt-4">
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
@@ -62,6 +71,16 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter className="pb-4">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton onClick={handleLogout}>
+              <LogOut />
+              <span>Logout</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
     </Sidebar>
   );
 }
