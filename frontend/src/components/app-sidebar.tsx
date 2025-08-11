@@ -5,6 +5,7 @@ import {
   LogOut,
   FileText,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/use-auth";
 
 import {
@@ -28,7 +29,7 @@ const items = [
   },
   {
     title: "Users",
-    url: "#",
+    url: "/users",
     icon: Users,
   },
   {
@@ -60,10 +61,10 @@ export function AppSidebar() {
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <a href={item.url}>
+                    <Link to={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
