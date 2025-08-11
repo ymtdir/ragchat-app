@@ -368,9 +368,18 @@ class TestGetAllUsers:
 
         # モックユーザーオブジェクトのリスト
         mock_users = [
-            User(id=1, name="user1", email="user1@example.com", password="hashed_password1"),
-            User(id=2, name="user2", email="user2@example.com", password="hashed_password2"),
-            User(id=3, name="user3", email="user3@example.com", password="hashed_password3"),
+            User(
+                id=1, name="user1", email="user1@example.com",
+                password="hashed_password1"
+            ),
+            User(
+                id=2, name="user2", email="user2@example.com",
+                password="hashed_password2"
+            ),
+            User(
+                id=3, name="user3", email="user3@example.com",
+                password="hashed_password3"
+            ),
         ]
 
         # UserServiceのメソッドをモック化
@@ -389,16 +398,16 @@ class TestGetAllUsers:
             # レスポンスの検証
             assert response.status_code == 200
             response_data = response.json()
-            
+
             # レスポンス構造の検証
             assert "users" in response_data
             assert "total" in response_data
             assert response_data["total"] == 3
-            
+
             # ユーザーリストの検証
             users = response_data["users"]
             assert len(users) == 3
-            
+
             # 各ユーザーのデータ検証
             for i, user in enumerate(users):
                 assert user["id"] == i + 1
@@ -438,7 +447,7 @@ class TestGetAllUsers:
             # レスポンスの検証
             assert response.status_code == 200
             response_data = response.json()
-            
+
             # レスポンス構造の検証
             assert "users" in response_data
             assert "total" in response_data
@@ -463,7 +472,10 @@ class TestGetAllUsers:
 
         # モックユーザーオブジェクト（1人だけ）
         mock_user = User(
-            id=1, name="singleuser", email="single@example.com", password="hashed_password"
+            id=1,
+            name="singleuser",
+            email="single@example.com",
+            password="hashed_password",
         )
 
         # UserServiceのメソッドをモック化
@@ -482,16 +494,16 @@ class TestGetAllUsers:
             # レスポンスの検証
             assert response.status_code == 200
             response_data = response.json()
-            
+
             # レスポンス構造の検証
             assert "users" in response_data
             assert "total" in response_data
             assert response_data["total"] == 1
-            
+
             # ユーザーリストの検証
             users = response_data["users"]
             assert len(users) == 1
-            
+
             # ユーザーデータの検証
             user = users[0]
             assert user["id"] == 1
