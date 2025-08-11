@@ -39,6 +39,7 @@ export function SignUpForm() {
       // 登録成功後、サインイン画面へリダイレクト
       navigate("/signin");
     } catch (err) {
+      console.error("登録エラー:", err);
       setError("通信エラーが発生しました");
     }
   };
