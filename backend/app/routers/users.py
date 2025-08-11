@@ -92,7 +92,7 @@ async def get_all_users(
 
     users = UserService.get_all_users(db)
     user_responses = [UserResponse.model_validate(user) for user in users]
-    
+
     return UsersResponse(users=user_responses, total=len(user_responses))
 
 
