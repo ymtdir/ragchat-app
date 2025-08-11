@@ -13,7 +13,8 @@ vi.mock("react-router-dom", async () => {
 });
 
 // fetchのモック
-global.fetch = vi.fn();
+const mockFetch = vi.fn();
+global.fetch = mockFetch;
 
 describe("useAuth", () => {
   beforeEach(() => {
@@ -26,7 +27,7 @@ describe("useAuth", () => {
     localStorage.setItem("access_token", "test-token");
 
     // fetchのモックレスポンス
-    (fetch as any).mockResolvedValueOnce({
+    mockFetch.mockResolvedValueOnce({
       ok: true,
       status: 200,
     });
@@ -61,7 +62,7 @@ describe("useAuth", () => {
     localStorage.setItem("access_token", "test-token");
 
     // fetchのモックレスポンス（エラー）
-    (fetch as any).mockResolvedValueOnce({
+    mockFetch.mockResolvedValueOnce({
       ok: false,
       status: 500,
     });
@@ -87,7 +88,7 @@ describe("useAuth", () => {
     localStorage.setItem("access_token", "test-token");
 
     // fetchのモックレスポンス（ネットワークエラー）
-    (fetch as any).mockRejectedValueOnce(new Error("Network error"));
+    mockFetch.mockRejectedValueOnce(new Error("Network error"));
 
     const { result } = renderHook(() => useAuth());
 
