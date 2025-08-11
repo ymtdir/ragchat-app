@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { UserTable, type User } from "@/components/user-table";
 import { UserService } from "@/services/user-service";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Plus, RefreshCw } from "lucide-react";
+import { Plus, RefreshCw, AlertCircle } from "lucide-react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./app-sidebar";
 
@@ -19,8 +19,8 @@ export function UsersPage() {
       const data = await UserService.getAllUsers();
       setUsers(data);
     } catch (err) {
-      console.error("ユーザー取得エラー:", err);
-      setError("ユーザーの取得に失敗しました。");
+      console.error("ユーザー情報の取得に失敗:", err);
+      setError("ユーザー情報の読み込みに失敗しました。");
     } finally {
       setIsLoading(false);
     }
@@ -42,18 +42,22 @@ export function UsersPage() {
   const renderContent = () => {
     if (error) {
       return (
-        <div className="flex justify-center">
-          <Card className="max-w-2xl">
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <p className="text-red-600 mb-4">{error}</p>
-                <Button onClick={handleRefresh} variant="outline">
-                  <RefreshCw className="mr-2 h-4 w-4" />
-                  再試行
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+        <div className="space-y-4">
+          <Alert variant="destructive" className="text-left">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>ユーザー情報の読み込みに失敗しました</AlertTitle>
+            <AlertDescription>
+              <p className="my-1">
+                データの取得中にエラーが発生しました。以下の原因が考えられます：
+              </p>
+              <ul className="list-inside list-disc text-sm my-1 pl-4">
+                <li>データベース接続エラー</li>
+                <li>APIサーバーの一時的な問題</li>
+                <li>ネットワーク接続の不具合</li>
+                <li>認証トークンの有効期限切れ</li>
+              </ul>
+            </AlertDescription>
+          </Alert>
         </div>
       );
     }
@@ -62,15 +66,17 @@ export function UsersPage() {
       <div className="max-w-7xl mx-auto w-full">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">ユーザー一覧</h1>
+            <h1 className="text-3xl font-bold tracking-tight text-left">
+              ユーザー管理
+            </h1>
             <p className="text-muted-foreground">
-              システム内のユーザーを一覧表示します。
+              登録ユーザーの管理と詳細情報を確認できます。
             </p>
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1">
             <Button onClick={handleAddUser} size="sm">
-              <Plus className="mr-2 h-4 w-4" />
-              ユーザー追加
+              <Plus className="h-4 w-4" />
+              新規ユーザー
             </Button>
           </div>
         </div>
