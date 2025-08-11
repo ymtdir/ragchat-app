@@ -16,6 +16,10 @@ vi.mock("@/components/dashboard", () => ({
   Dashboard: () => <div data-testid="dashboard">Dashboard</div>,
 }));
 
+vi.mock("@/components/users", () => ({
+  UsersPage: () => <div data-testid="users-page">UsersPage</div>,
+}));
+
 import { expect, test, describe, vi, beforeEach } from "vitest";
 import { createGuestRoutes, createProtectedRoutes } from "./index";
 import { guestRoute, protectedRoute } from "@/utils/auth-loader";
@@ -46,8 +50,8 @@ describe("routes", () => {
     test("正しい数の保護されたルートを作成する", () => {
       const routes = createProtectedRoutes();
 
-      expect(routes).toHaveLength(1);
-      expect(protectedRoute).toHaveBeenCalledTimes(1);
+      expect(routes).toHaveLength(2);
+      expect(protectedRoute).toHaveBeenCalledTimes(2);
     });
 
     test("正しいパスで保護されたルートを作成する", () => {
@@ -57,6 +61,7 @@ describe("routes", () => {
         "/dashboard",
         expect.anything()
       );
+      expect(protectedRoute).toHaveBeenCalledWith("/users", expect.anything());
     });
   });
 });

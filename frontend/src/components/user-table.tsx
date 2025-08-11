@@ -41,7 +41,7 @@ import {
 export type User = {
   id: number;
   email: string;
-  username: string;
+  name: string;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -214,8 +214,8 @@ export function UserTable({ data, isLoading = false }: UserTableProps) {
                     }
                   >
                     {column.id === "id" && "ID"}
-                    {column.id === "name" && "ユーザー名"}
-                    {column.id === "email" && "メールアドレス"}
+                    {column.id === "name" && "Name"}
+                    {column.id === "email" && "Email"}
                   </DropdownMenuCheckboxItem>
                 );
               })}
