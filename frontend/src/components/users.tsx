@@ -3,7 +3,7 @@ import { UserTable, type User } from "@/components/user-table";
 import { UserService } from "@/services/user-service";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Plus, RefreshCw, AlertCircle } from "lucide-react";
+import { Plus, AlertCircle } from "lucide-react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./app-sidebar";
 
@@ -29,10 +29,6 @@ export function UsersPage() {
   useEffect(() => {
     fetchUsers();
   }, []);
-
-  const handleRefresh = () => {
-    fetchUsers();
-  };
 
   const handleAddUser = () => {
     // TODO: ユーザー追加機能を実装
