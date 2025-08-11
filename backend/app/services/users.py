@@ -92,6 +92,18 @@ class UserService:
         return db.query(User).filter(User.email == email).first()
 
     @staticmethod
+    def get_all_users(db: Session) -> list[User]:
+        """全ユーザーを取得する
+
+        Args:
+            db: データベースセッション
+
+        Returns:
+            list[User]: 全ユーザーのリスト
+        """
+        return db.query(User).all()
+
+    @staticmethod
     def is_name_taken(db: Session, name: str) -> bool:
         """ユーザー名が既に使用されているかチェックする
 

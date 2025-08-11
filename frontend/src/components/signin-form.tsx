@@ -36,6 +36,7 @@ export function SignInForm() {
       // ダッシュボードへリダイレクト
       navigate("/dashboard");
     } catch (err) {
+      console.error("ログインエラー:", err);
       setError("通信エラーが発生しました");
     }
   };

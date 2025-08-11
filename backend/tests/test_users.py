@@ -355,6 +355,171 @@ class TestGetUser:
         assert any(error["loc"] == ["path", "user_id"] for error in errors)
 
 
+class TestGetAllUsers:
+    """全ユーザー取得エンドポイントのテストクラス"""
+
+    def test_get_all_users_success(self, client: TestClient):
+        """全ユーザー取得の正常系テスト
+
+        複数のユーザーが存在する場合に、適切なレスポンスが返されることを検証します。
+        """
+        # モックデータベースセッション
+        mock_db = MagicMock()
+
+        # モックユーザーオブジェクトのリスト
+        mock_users = [
+            User(
+                id=1, name="user1", email="user1@example.com",
+                password="hashed_password1"
+            ),
+            User(
+                id=2, name="user2", email="user2@example.com",
+                password="hashed_password2"
+            ),
+            User(
+                id=3, name="user3", email="user3@example.com",
+                password="hashed_password3"
+            ),
+        ]
+
+        # UserServiceのメソッドをモック化
+        UserService.get_all_users = MagicMock(return_value=mock_users)
+
+        # データベースセッションをオーバーライド
+        def override_get_db():
+            yield mock_db
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        try:
+            # APIリクエストを送信
+            response = client.get("/api/users/")
+
+            # レスポンスの検証
+            assert response.status_code == 200
+            response_data = response.json()
+
+            # レスポンス構造の検証
+            assert "users" in response_data
+            assert "total" in response_data
+            assert response_data["total"] == 3
+
+            # ユーザーリストの検証
+            users = response_data["users"]
+            assert len(users) == 3
+
+            # 各ユーザーのデータ検証
+            for i, user in enumerate(users):
+                assert user["id"] == i + 1
+                assert user["name"] == f"user{i + 1}"
+                assert user["email"] == f"user{i + 1}@example.com"
+                assert "password" not in user  # パスワードは含まれない
+
+            # サービスメソッドの呼び出し確認
+            UserService.get_all_users.assert_called_once_with(mock_db)
+
+        finally:
+            # オーバーライドとモックをクリア
+            app.dependency_overrides.clear()
+            UserService.get_all_users.reset_mock()
+
+    def test_get_all_users_empty(self, client: TestClient):
+        """全ユーザー取得の正常系テスト（ユーザーが存在しない場合）
+
+        ユーザーが存在しない場合に、空のリストと0の総数が返されることを検証します。
+        """
+        # モックデータベースセッション
+        mock_db = MagicMock()
+
+        # UserServiceのメソッドをモック化（空のリストを返す）
+        UserService.get_all_users = MagicMock(return_value=[])
+
+        # データベースセッションをオーバーライド
+        def override_get_db():
+            yield mock_db
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        try:
+            # APIリクエストを送信
+            response = client.get("/api/users/")
+
+            # レスポンスの検証
+            assert response.status_code == 200
+            response_data = response.json()
+
+            # レスポンス構造の検証
+            assert "users" in response_data
+            assert "total" in response_data
+            assert response_data["total"] == 0
+            assert response_data["users"] == []
+
+            # サービスメソッドの呼び出し確認
+            UserService.get_all_users.assert_called_once_with(mock_db)
+
+        finally:
+            # オーバーライドとモックをクリア
+            app.dependency_overrides.clear()
+            UserService.get_all_users.reset_mock()
+
+    def test_get_all_users_single_user(self, client: TestClient):
+        """全ユーザー取得の正常系テスト（ユーザーが1人の場合）
+
+        ユーザーが1人だけ存在する場合のレスポンスを検証します。
+        """
+        # モックデータベースセッション
+        mock_db = MagicMock()
+
+        # モックユーザーオブジェクト（1人だけ）
+        mock_user = User(
+            id=1,
+            name="singleuser",
+            email="single@example.com",
+            password="hashed_password",
+        )
+
+        # UserServiceのメソッドをモック化
+        UserService.get_all_users = MagicMock(return_value=[mock_user])
+
+        # データベースセッションをオーバーライド
+        def override_get_db():
+            yield mock_db
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        try:
+            # APIリクエストを送信
+            response = client.get("/api/users/")
+
+            # レスポンスの検証
+            assert response.status_code == 200
+            response_data = response.json()
+
+            # レスポンス構造の検証
+            assert "users" in response_data
+            assert "total" in response_data
+            assert response_data["total"] == 1
+
+            # ユーザーリストの検証
+            users = response_data["users"]
+            assert len(users) == 1
+
+            # ユーザーデータの検証
+            user = users[0]
+            assert user["id"] == 1
+            assert user["name"] == "singleuser"
+            assert user["email"] == "single@example.com"
+            assert "password" not in user  # パスワードは含まれない
+
+            # サービスメソッドの呼び出し確認
+            UserService.get_all_users.assert_called_once_with(mock_db)
+
+        finally:
+            # オーバーライドとモックをクリア
+            app.dependency_overrides.clear()
+            UserService.get_all_users.reset_mock()
+
+
 class TestUsersIntegration:
     """ユーザーエンドポイントの統合テストクラス"""
 

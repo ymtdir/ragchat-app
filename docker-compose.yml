@@ -47,7 +47,10 @@ services:
       - "8080:80"
     depends_on:
       - db
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
     restart: unless-stopped
 
 volumes:
   postgres_data:
+  pgadmin_data:

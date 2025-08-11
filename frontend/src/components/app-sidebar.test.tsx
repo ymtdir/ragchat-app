@@ -1,5 +1,6 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { expect, test, describe, vi, beforeEach } from "vitest";
+import { MemoryRouter } from "react-router-dom";
 import { AppSidebar } from "./app-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 
@@ -53,17 +54,22 @@ vi.mock("@/components/ui/sidebar", () => ({
   ),
 }));
 
+// テスト用のラッパー関数
+const renderWithRouter = (component: React.ReactElement) => {
+  return render(
+    <MemoryRouter>
+      <SidebarProvider>{component}</SidebarProvider>
+    </MemoryRouter>
+  );
+};
+
 describe("AppSidebar", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   test("サイドバーが正しくレンダリングされる", () => {
-    render(
-      <SidebarProvider>
-        <AppSidebar />
-      </SidebarProvider>
-    );
+    renderWithRouter(<AppSidebar />);
 
     expect(screen.getByText("RagChat App")).toBeTruthy();
     expect(screen.getByText("Dashboard")).toBeTruthy();
@@ -74,11 +80,7 @@ describe("AppSidebar", () => {
   });
 
   test("ログアウトボタンがクリック可能", async () => {
-    render(
-      <SidebarProvider>
-        <AppSidebar />
-      </SidebarProvider>
-    );
+    renderWithRouter(<AppSidebar />);
 
     const logoutButton = screen.getByText("Logout");
     fireEvent.click(logoutButton);
@@ -87,11 +89,7 @@ describe("AppSidebar", () => {
   });
 
   test("メニューアイテムが正しく表示される", () => {
-    render(
-      <SidebarProvider>
-        <AppSidebar />
-      </SidebarProvider>
-    );
+    renderWithRouter(<AppSidebar />);
 
     expect(screen.getByText("Dashboard")).toBeTruthy();
     expect(screen.getByText("Users")).toBeTruthy();
@@ -100,31 +98,23 @@ describe("AppSidebar", () => {
   });
 
   test("メニューアイテムのリンクが正しい", () => {
-    render(
-      <SidebarProvider>
-        <AppSidebar />
-      </SidebarProvider>
-    );
+    renderWithRouter(<AppSidebar />);
 
     const dashboardLink = screen.getByText("Dashboard").closest("a");
     expect(dashboardLink).toHaveAttribute("href", "/dashboard");
 
     const usersLink = screen.getByText("Users").closest("a");
-    expect(usersLink).toHaveAttribute("href", "#");
+    expect(usersLink).toHaveAttribute("href", "/users");
 
     const documentsLink = screen.getByText("Documents").closest("a");
-    expect(documentsLink).toHaveAttribute("href", "#");
+    expect(documentsLink).toHaveAttribute("href", "/");
 
     const settingsLink = screen.getByText("Settings").closest("a");
-    expect(settingsLink).toHaveAttribute("href", "#");
+    expect(settingsLink).toHaveAttribute("href", "/");
   });
 
   test("サイドバーの構造が正しい", () => {
-    render(
-      <SidebarProvider>
-        <AppSidebar />
-      </SidebarProvider>
-    );
+    renderWithRouter(<AppSidebar />);
 
     expect(screen.getByTestId("sidebar")).toBeTruthy();
     expect(screen.getByTestId("sidebar-content")).toBeTruthy();
