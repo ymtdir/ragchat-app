@@ -2,20 +2,8 @@
 "use client";
 
 import * as React from "react";
-import {
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-import type {
-  ColumnDef,
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState,
-} from "@tanstack/react-table";
+import { flexRender } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -37,17 +25,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useUserTable } from "@/hooks/use-user-table";
+import { UserEditModal } from "./user-edit-modal";
+import type { User } from "@/types/api";
 
-export type User = {
-  id: number;
-  email: string;
-  name: string;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-};
-
-export const columns: ColumnDef<User>[] = [
+// columnsの定義を関数内に移動するため、ここでは型のみ定義
+export const createColumns = (
+  handleEditUser: (user: User) => void
+): ColumnDef<User>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -127,7 +112,9 @@ export const columns: ColumnDef<User>[] = [
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>ユーザー詳細を表示</DropdownMenuItem>
-            <DropdownMenuItem>ユーザーを編集</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleEditUser(user)}>
+              ユーザーを編集
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );
@@ -141,32 +128,26 @@ interface UserTableProps {
 }
 
 export function UserTable({ data, isLoading = false }: UserTableProps) {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
+  const [editingUser, setEditingUser] = React.useState<User | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
 
-  const table = useReactTable({
-    data,
-    columns,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
-    state: {
-      sorting,
-      columnFilters,
-      columnVisibility,
-      rowSelection,
-    },
-  });
+  const handleEditUser = (user: User) => {
+    setEditingUser(user);
+    setIsEditModalOpen(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
+    setEditingUser(null);
+  };
+
+  const handleSaveUser = (updatedUser: User) => {
+    // TODO: 実際のAPI呼び出しを実装
+    console.log("保存されたユーザー:", updatedUser);
+  };
+
+  const columns = createColumns(handleEditUser);
+  const { table } = useUserTable(data, columns);
 
   if (isLoading) {
     return (
@@ -296,6 +277,12 @@ export function UserTable({ data, isLoading = false }: UserTableProps) {
           </Button>
         </div>
       </div>
+      <UserEditModal
+        user={editingUser}
+        isOpen={isEditModalOpen}
+        onClose={handleCloseEditModal}
+        onSave={handleSaveUser}
+      />
     </div>
   );
 }
