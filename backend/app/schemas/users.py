@@ -61,6 +61,38 @@ class UserResponse(BaseModel):
         }
 
 
+class UserUpdate(BaseModel):
+    """ユーザー更新用スキーマ
+
+    PUTリクエストで受け取るデータの形式を定義します。
+    名前・メールアドレスとパスワードの両方を更新可能です。
+
+    Attributes:
+        name: ユーザー名（オプション、3-50文字）
+        email: メールアドレス（オプション、有効なメール形式）
+        current_password: 現在のパスワード（パスワード変更時のみ必須）
+        new_password: 新しいパスワード（オプション、8文字以上）
+    """
+
+    name: str | None = Field(None, min_length=3, max_length=50, description="ユーザー名")
+    email: EmailStr | None = Field(None, description="メールアドレス")
+    current_password: str | None = Field(None, description="現在のパスワード")
+    new_password: str | None = Field(None, min_length=8, description="新しいパスワード")
+
+    class Config:
+        """設定クラス"""
+
+        # JSON Schema用のサンプルデータ
+        json_schema_extra = {
+            "example": {
+                "name": "updated_user",
+                "email": "updated@example.com",
+                "current_password": "oldpassword",
+                "new_password": "newpassword123",
+            }
+        }
+
+
 class UsersResponse(BaseModel):
     """全ユーザーレスポンス用スキーマ
 

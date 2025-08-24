@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
 from ..config.database import get_db
-from ..schemas.users import UserCreate, UserResponse, UsersResponse
+from ..schemas.users import UserCreate, UserResponse, UsersResponse, UserUpdate
 from ..services.users import UserService
 
 # ユーザー管理用ルーター
@@ -128,3 +128,56 @@ async def get_user(
         )
 
     return UserResponse.model_validate(user)
+
+
+@router.put(
+    "/{user_id}",
+    response_model=UserResponse,
+    summary="ユーザー更新",
+    description="指定されたIDのユーザー情報を更新します。名前・メールアドレスとパスワードの両方を更新可能です。",
+    response_description="更新されたユーザー情報",
+)
+async def update_user(
+    user_id: int,  # パスパラメータ
+    user_data: UserUpdate,  # リクエストボディ
+    db: Session = Depends(get_db),  # データベースセッション（依存性注入）
+) -> UserResponse:
+    """ユーザー情報を更新する
+
+    Args:
+        user_id: ユーザーID
+        user_data: 更新データ（自動的にバリデーション済み）
+        db: データベースセッション（依存性注入）
+
+    Returns:
+        UserResponse: 更新されたユーザー情報
+
+    Raises:
+        HTTPException: ユーザーが存在しない場合（404）
+        HTTPException: パスワード変更時に現在のパスワードが正しくない場合（400）
+        HTTPException: ユーザー名またはメールアドレスが重複している場合（400）
+    """
+
+    try:
+        updated_user = UserService.update_user(db, user_id, user_data)
+        if not updated_user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"ID {user_id} のユーザーが見つかりません",
+            )
+        
+        return UserResponse.model_validate(updated_user)
+    
+    except ValueError as e:
+        # パスワード関連のエラー
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
+    
+    except IntegrityError:
+        # データベース制約違反（重複エラー）
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="ユーザー名またはメールアドレスが既に使用されています",
+        )
