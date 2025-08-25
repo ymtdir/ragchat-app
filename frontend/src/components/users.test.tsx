@@ -25,7 +25,6 @@ vi.mock("./user-table", () => ({
   UserTable: ({
     data,
     isLoading,
-    onUserUpdate,
   }: {
     data: User[];
     isLoading: boolean;
@@ -67,10 +66,10 @@ describe("UsersPage", () => {
 
   describe("データ取得", () => {
     test("初期状態でユーザーデータを取得する", async () => {
-      (fetch as any).mockResolvedValueOnce({
+      (fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
         ok: true,
         json: async () => mockUsers,
-      });
+      } as Response);
 
       renderWithRouter(<UsersPage />);
 
@@ -83,10 +82,10 @@ describe("UsersPage", () => {
     });
 
     test("ユーザーデータが正しく表示される", async () => {
-      (fetch as any).mockResolvedValueOnce({
+      (fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
         ok: true,
         json: async () => mockUsers,
-      });
+      } as Response);
 
       renderWithRouter(<UsersPage />);
 
@@ -98,19 +97,16 @@ describe("UsersPage", () => {
 
   describe("ユーザー更新", () => {
     test("handleUserUpdateが正しく動作する", async () => {
-      (fetch as any).mockResolvedValueOnce({
+      (fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
         ok: true,
         json: async () => mockUsers,
-      });
+      } as Response);
 
       renderWithRouter(<UsersPage />);
 
       await waitFor(() => {
         expect(screen.getByTestId("user-table")).toBeInTheDocument();
       });
-
-      // ユーザーが更新された場合のテスト
-      const updatedUser = { ...mockUsers[0], name: "更新されたユーザー" };
 
       // UserTableのonUserUpdateを呼び出す（実際の実装ではUserEditModalから呼ばれる）
       // このテストでは直接テストできないため、モックの動作を確認

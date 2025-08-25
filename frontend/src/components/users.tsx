@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { UserTable } from "@/components/user-table";
+import { UserCreateModal } from "@/components/user-create-modal";
 import type { User } from "@/types/api";
 import { UserService } from "@/services/user-service";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -12,6 +13,7 @@ export function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const fetchUsers = async () => {
     try {
@@ -32,8 +34,7 @@ export function UsersPage() {
   }, []);
 
   const handleAddUser = () => {
-    // TODO: ユーザー追加機能を実装
-    console.log("ユーザー追加");
+    setIsCreateModalOpen(true);
   };
 
   const handleUserUpdate = (updatedUser: User) => {
@@ -41,6 +42,11 @@ export function UsersPage() {
     setUsers((prevUsers) =>
       prevUsers.map((user) => (user.id === updatedUser.id ? updatedUser : user))
     );
+  };
+
+  const handleUserCreate = (newUser: User) => {
+    // 新しいユーザーが作成されたら、テーブルに追加
+    setUsers((prevUsers) => [...prevUsers, newUser]);
   };
 
   const renderContent = () => {
@@ -107,6 +113,11 @@ export function UsersPage() {
           <main className="flex-1 p-6 overflow-auto">{renderContent()}</main>
         </div>
       </div>
+      <UserCreateModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSave={handleUserCreate}
+      />
     </SidebarProvider>
   );
 }
