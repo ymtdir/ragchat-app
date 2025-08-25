@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { expect, test, describe, vi, beforeEach, afterEach } from "vitest";
 import { UserService } from "./user-service";
 import type { User } from "@/components/user-table";

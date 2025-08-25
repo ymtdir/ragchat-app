@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { render, screen } from "@testing-library/react";
 import { expect, test, describe, vi, beforeEach } from "vitest";
 import { UserTable } from "./user-table";

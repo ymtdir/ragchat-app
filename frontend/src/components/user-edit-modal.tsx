@@ -71,7 +71,7 @@ export function UserEditModal({
 
     try {
       // 更新するデータを準備
-      const updateData: any = {};
+      const updateData: Record<string, string> = {};
 
       // 名前またはメールアドレスが変更されている場合
       if (formData.name !== user.name || formData.email !== user.email) {
@@ -134,7 +134,7 @@ export function UserEditModal({
           if (Array.isArray(errorData.detail)) {
             // 複数のバリデーションエラーがある場合
             const errorMessages = errorData.detail
-              .map((error: any) => {
+              .map((error: { loc?: string[]; msg: string }) => {
                 // フィールド名を日本語に変換
                 const fieldName = error.loc?.join(".") || "";
                 let japaneseFieldName = "";
