@@ -27,11 +27,13 @@ import {
 } from "@/components/ui/table";
 import { useUserTable } from "@/hooks/use-user-table";
 import { UserEditModal } from "./user-edit-modal";
+import { UserDeleteDialog } from "./user-delete-dialog";
 import type { User } from "@/types/api";
 
 // columnsの定義を関数内に移動するため、ここでは型のみ定義
 export const createColumns = (
-  handleEditUser: (user: User) => void
+  handleEditUser: (user: User) => void,
+  handleDeleteUser: (user: User) => void
 ): ColumnDef<User>[] => [
   {
     id: "select",
@@ -111,9 +113,14 @@ export const createColumns = (
               ユーザーIDをコピー
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>ユーザー詳細を表示</DropdownMenuItem>
             <DropdownMenuItem onClick={() => handleEditUser(user)}>
-              ユーザーを編集
+              ユーザー情報を編集
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => handleDeleteUser(user)}
+              className="text-red-600 focus:text-red-600"
+            >
+              ユーザーを削除
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -126,15 +133,20 @@ interface UserTableProps {
   data: User[];
   isLoading?: boolean;
   onUserUpdate?: (updatedUser: User) => void;
+  onUserDelete?: (userId: number) => void;
 }
 
 export function UserTable({
   data,
   isLoading = false,
   onUserUpdate,
+  onUserDelete,
 }: UserTableProps) {
   const [editingUser, setEditingUser] = React.useState<User | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
+  const [deletingUser, setDeletingUser] = React.useState<User | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
+  const [isDeleting, setIsDeleting] = React.useState(false);
 
   const handleEditUser = (user: User) => {
     setEditingUser(user);
@@ -153,7 +165,35 @@ export function UserTable({
     }
   };
 
-  const columns = createColumns(handleEditUser);
+  const handleDeleteUser = (user: User) => {
+    // 削除確認ダイアログを表示
+    setDeletingUser(user);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deletingUser || !onUserDelete) return;
+
+    setIsDeleting(true);
+    try {
+      // 親コンポーネントに削除を通知
+      onUserDelete(deletingUser.id);
+      setIsDeleteDialogOpen(false);
+      setDeletingUser(null);
+    } catch (error) {
+      console.error("ユーザー削除エラー:", error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setIsDeleteDialogOpen(false);
+    setDeletingUser(null);
+    setIsDeleting(false);
+  };
+
+  const columns = createColumns(handleEditUser, handleDeleteUser);
   const { table } = useUserTable(data, columns);
 
   if (isLoading) {
@@ -289,6 +329,13 @@ export function UserTable({
         isOpen={isEditModalOpen}
         onClose={handleCloseEditModal}
         onSave={handleSaveUser}
+      />
+      <UserDeleteDialog
+        user={deletingUser}
+        isOpen={isDeleteDialogOpen}
+        onClose={handleCloseDeleteDialog}
+        onConfirm={handleConfirmDelete}
+        isLoading={isDeleting}
       />
     </div>
   );

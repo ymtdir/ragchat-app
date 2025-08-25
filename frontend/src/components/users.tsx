@@ -49,6 +49,11 @@ export function UsersPage() {
     setUsers((prevUsers) => [...prevUsers, newUser]);
   };
 
+  const handleUserDelete = (userId: number) => {
+    // ユーザーが削除されたら、テーブルから削除
+    setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId));
+  };
+
   const renderContent = () => {
     if (error) {
       return (
@@ -94,6 +99,7 @@ export function UsersPage() {
           data={users}
           isLoading={isLoading}
           onUserUpdate={handleUserUpdate}
+          onUserDelete={handleUserDelete}
         />
       </div>
     );

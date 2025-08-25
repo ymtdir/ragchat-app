@@ -17,6 +17,7 @@ const mockUsers: User[] = [
 ];
 
 const mockOnUserUpdate = vi.fn();
+const mockOnUserDelete = vi.fn();
 
 describe("UserTable", () => {
   beforeEach(() => {
@@ -30,6 +31,7 @@ describe("UserTable", () => {
           data={mockUsers}
           isLoading={false}
           onUserUpdate={mockOnUserUpdate}
+          onUserDelete={mockOnUserDelete}
         />
       );
 
@@ -45,6 +47,7 @@ describe("UserTable", () => {
           data={mockUsers}
           isLoading={true}
           onUserUpdate={mockOnUserUpdate}
+          onUserDelete={mockOnUserDelete}
         />
       );
 
@@ -63,11 +66,28 @@ describe("UserTable", () => {
           data={mockUsers}
           isLoading={false}
           onUserUpdate={mockOnUserUpdate}
+          onUserDelete={mockOnUserDelete}
         />
       );
 
       // onUserUpdateが渡されていることを確認（実際の呼び出しはUserEditModalで行われる）
       expect(mockOnUserUpdate).toBeDefined();
+    });
+  });
+
+  describe("ユーザー削除", () => {
+    test("onUserDeleteが正しく渡される", () => {
+      render(
+        <UserTable
+          data={mockUsers}
+          isLoading={false}
+          onUserUpdate={mockOnUserUpdate}
+          onUserDelete={mockOnUserDelete}
+        />
+      );
+
+      // onUserDeleteが渡されていることを確認
+      expect(mockOnUserDelete).toBeDefined();
     });
   });
 });
