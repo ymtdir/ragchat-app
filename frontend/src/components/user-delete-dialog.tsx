@@ -1,3 +1,4 @@
+import * as React from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,8 +15,8 @@ interface UserDeleteDialogProps {
   user: User | null;
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => void;
-  isLoading?: boolean;
+  onConfirm: (success: boolean) => void;
+  onLoadingChange?: (loading: boolean) => void;
 }
 
 export function UserDeleteDialog({
@@ -23,8 +24,50 @@ export function UserDeleteDialog({
   isOpen,
   onClose,
   onConfirm,
-  isLoading = false,
+  onLoadingChange,
 }: UserDeleteDialogProps) {
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  const handleDelete = async () => {
+    if (!user) return;
+
+    setIsLoading(true);
+    onLoadingChange?.(true);
+
+    try {
+      const response = await fetch(
+        `http://localhost:8000/api/users/${user.id}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log("削除成功:", result);
+        onConfirm(true);
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        console.error(
+          "削除エラー:",
+          response.status,
+          response.statusText,
+          errorData
+        );
+        onConfirm(false);
+      }
+    } catch (error) {
+      console.error("削除エラー:", error);
+      onConfirm(false);
+    } finally {
+      setIsLoading(false);
+      onLoadingChange?.(false);
+    }
+  };
+
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
       <AlertDialogContent>
@@ -39,7 +82,7 @@ export function UserDeleteDialog({
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isLoading}>キャンセル</AlertDialogCancel>
           <AlertDialogAction
-            onClick={onConfirm}
+            onClick={handleDelete}
             disabled={isLoading}
             className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
           >

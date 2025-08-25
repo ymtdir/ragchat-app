@@ -1,5 +1,5 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import { expect, test, describe, vi } from "vitest";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { expect, test, describe, vi, beforeEach } from "vitest";
 import { UserDeleteDialog } from "./user-delete-dialog";
 import type { User } from "@/types/api";
 
@@ -14,10 +14,15 @@ const defaultProps = {
   isOpen: true,
   onClose: vi.fn(),
   onConfirm: vi.fn(),
-  isLoading: false,
+  onLoadingChange: vi.fn(),
 };
 
 describe("UserDeleteDialog", () => {
+  beforeEach(() => {
+    // fetchをモック化
+    global.fetch = vi.fn();
+  });
+
   describe("レンダリング", () => {
     test("ダイアログが正しく表示される", () => {
       render(<UserDeleteDialog {...defaultProps} />);
@@ -60,33 +65,108 @@ describe("UserDeleteDialog", () => {
       expect(onClose).toHaveBeenCalled();
     });
 
-    test("削除ボタンをクリックするとonConfirmが呼ばれる", () => {
+    test("削除ボタンをクリックするとAPIが呼ばれ、成功時にonConfirm(true)が呼ばれる", async () => {
       const onConfirm = vi.fn();
-      render(<UserDeleteDialog {...defaultProps} onConfirm={onConfirm} />);
+      const onLoadingChange = vi.fn();
+      
+      // 成功レスポンスをモック
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ message: "ユーザーが正常に削除されました", deleted_count: 1 }),
+      });
+
+      render(
+        <UserDeleteDialog 
+          {...defaultProps} 
+          onConfirm={onConfirm} 
+          onLoadingChange={onLoadingChange}
+        />
+      );
 
       const deleteButton = screen.getByText("削除");
       fireEvent.click(deleteButton);
 
-      expect(onConfirm).toHaveBeenCalled();
+      await waitFor(() => {
+        expect(onLoadingChange).toHaveBeenCalledWith(true);
+        expect(onLoadingChange).toHaveBeenCalledWith(false);
+        expect(onConfirm).toHaveBeenCalledWith(true);
+      });
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        "http://localhost:8000/api/users/1",
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    });
+
+    test("削除ボタンをクリックするとAPIが呼ばれ、失敗時にonConfirm(false)が呼ばれる", async () => {
+      const onConfirm = vi.fn();
+      const onLoadingChange = vi.fn();
+      
+      // 失敗レスポンスをモック
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+        statusText: "Not Found",
+        json: async () => ({ detail: "ID 1 のユーザーが見つかりません" }),
+      });
+
+      render(
+        <UserDeleteDialog 
+          {...defaultProps} 
+          onConfirm={onConfirm} 
+          onLoadingChange={onLoadingChange}
+        />
+      );
+
+      const deleteButton = screen.getByText("削除");
+      fireEvent.click(deleteButton);
+
+      await waitFor(() => {
+        expect(onLoadingChange).toHaveBeenCalledWith(true);
+        expect(onLoadingChange).toHaveBeenCalledWith(false);
+        expect(onConfirm).toHaveBeenCalledWith(false);
+      });
     });
   });
 
   describe("ローディング状態", () => {
-    test("ローディング中はボタンが無効化される", () => {
-      render(<UserDeleteDialog {...defaultProps} isLoading={true} />);
+    test("削除処理中はボタンが無効化され、テキストが変わる", async () => {
+      const onLoadingChange = vi.fn();
+      
+      // 遅延レスポンスをモック
+      (global.fetch as ReturnType<typeof vi.fn>).mockImplementationOnce(
+        () => new Promise(resolve => setTimeout(() => resolve({
+          ok: true,
+          json: async () => ({ message: "ユーザーが正常に削除されました", deleted_count: 1 }),
+        }), 100))
+      );
+
+      render(
+        <UserDeleteDialog 
+          {...defaultProps} 
+          onLoadingChange={onLoadingChange}
+        />
+      );
+
+      const deleteButton = screen.getByText("削除");
+      fireEvent.click(deleteButton);
+
+      // ローディング状態を確認
+      await waitFor(() => {
+        expect(screen.getByText("削除中...")).toBeInTheDocument();
+        expect(screen.queryByText("削除")).not.toBeInTheDocument();
+      });
 
       const cancelButton = screen.getByText("キャンセル");
-      const deleteButton = screen.getByText("削除中...");
+      const loadingDeleteButton = screen.getByText("削除中...");
 
       expect(cancelButton).toBeDisabled();
-      expect(deleteButton).toBeDisabled();
-    });
-
-    test("ローディング中は削除ボタンのテキストが変わる", () => {
-      render(<UserDeleteDialog {...defaultProps} isLoading={true} />);
-
-      expect(screen.getByText("削除中...")).toBeInTheDocument();
-      expect(screen.queryByText("削除")).not.toBeInTheDocument();
+      expect(loadingDeleteButton).toBeDisabled();
     });
   });
 });

@@ -171,19 +171,22 @@ export function UserTable({
     setIsDeleteDialogOpen(true);
   };
 
-  const handleConfirmDelete = async () => {
-    if (!deletingUser || !onUserDelete) return;
+  const handleConfirmDelete = async (success: boolean) => {
+    if (!deletingUser) return;
 
-    setIsDeleting(true);
-    try {
-      // 親コンポーネントに削除を通知
-      onUserDelete(deletingUser.id);
+    if (success) {
+      // 削除成功時は親コンポーネントに通知
+      if (onUserDelete) {
+        onUserDelete(deletingUser.id);
+      }
       setIsDeleteDialogOpen(false);
       setDeletingUser(null);
-    } catch (error) {
-      console.error("ユーザー削除エラー:", error);
-    } finally {
-      setIsDeleting(false);
+    } else {
+      // 削除失敗時はダイアログを閉じる
+      setIsDeleteDialogOpen(false);
+      setDeletingUser(null);
+      // エラーメッセージを表示する場合はここで処理
+      alert("ユーザーの削除に失敗しました。");
     }
   };
 
@@ -335,7 +338,7 @@ export function UserTable({
         isOpen={isDeleteDialogOpen}
         onClose={handleCloseDeleteDialog}
         onConfirm={handleConfirmDelete}
-        isLoading={isDeleting}
+        onLoadingChange={setIsDeleting}
       />
     </div>
   );
