@@ -125,9 +125,14 @@ export const createColumns = (
 interface UserTableProps {
   data: User[];
   isLoading?: boolean;
+  onUserUpdate?: (updatedUser: User) => void;
 }
 
-export function UserTable({ data, isLoading = false }: UserTableProps) {
+export function UserTable({
+  data,
+  isLoading = false,
+  onUserUpdate,
+}: UserTableProps) {
   const [editingUser, setEditingUser] = React.useState<User | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
 
@@ -142,8 +147,10 @@ export function UserTable({ data, isLoading = false }: UserTableProps) {
   };
 
   const handleSaveUser = (updatedUser: User) => {
-    // TODO: 実際のAPI呼び出しを実装
-    console.log("保存されたユーザー:", updatedUser);
+    // 親コンポーネントに更新を通知
+    if (onUserUpdate) {
+      onUserUpdate(updatedUser);
+    }
   };
 
   const columns = createColumns(handleEditUser);

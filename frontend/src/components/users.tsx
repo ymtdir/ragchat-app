@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { UserTable, type User } from "@/components/user-table";
+import { UserTable } from "@/components/user-table";
+import type { User } from "@/types/api";
 import { UserService } from "@/services/user-service";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -33,6 +34,13 @@ export function UsersPage() {
   const handleAddUser = () => {
     // TODO: ユーザー追加機能を実装
     console.log("ユーザー追加");
+  };
+
+  const handleUserUpdate = (updatedUser: User) => {
+    // ユーザー情報が更新されたら、テーブルを再読み込み
+    setUsers((prevUsers) =>
+      prevUsers.map((user) => (user.id === updatedUser.id ? updatedUser : user))
+    );
   };
 
   const renderContent = () => {
@@ -76,7 +84,11 @@ export function UsersPage() {
             </Button>
           </div>
         </div>
-        <UserTable data={users} isLoading={isLoading} />
+        <UserTable
+          data={users}
+          isLoading={isLoading}
+          onUserUpdate={handleUserUpdate}
+        />
       </div>
     );
   };
