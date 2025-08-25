@@ -74,7 +74,9 @@ class UserUpdate(BaseModel):
         new_password: 新しいパスワード（オプション、8文字以上）
     """
 
-    name: str | None = Field(None, min_length=3, max_length=50, description="ユーザー名")
+    name: str | None = Field(
+        None, min_length=3, max_length=50, description="ユーザー名"
+    )
     email: EmailStr | None = Field(None, description="メールアドレス")
     current_password: str | None = Field(None, description="現在のパスワード")
     new_password: str | None = Field(None, min_length=8, description="新しいパスワード")
@@ -89,6 +91,31 @@ class UserUpdate(BaseModel):
                 "email": "updated@example.com",
                 "current_password": "oldpassword",
                 "new_password": "newpassword123",
+            }
+        }
+
+
+class UserDeleteResponse(BaseModel):
+    """ユーザー削除レスポンス用スキーマ
+
+    APIレスポンスで返す削除結果の形式を定義します。
+
+    Attributes:
+        message: 削除完了メッセージ
+        deleted_count: 削除されたユーザー数
+    """
+
+    message: str
+    deleted_count: int
+
+    class Config:
+        """設定クラス"""
+
+        # JSON Schema用のサンプルデータ
+        json_schema_extra = {
+            "example": {
+                "message": "ユーザーが正常に削除されました",
+                "deleted_count": 1,
             }
         }
 

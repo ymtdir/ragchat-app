@@ -167,10 +167,12 @@ class UserService:
         if user_data.new_password is not None:
             if not user_data.current_password:
                 raise ValueError("パスワード変更には現在のパスワードが必要です")
-            
-            if not UserService.verify_password(user_data.current_password, user.password):
+
+            if not UserService.verify_password(
+                user_data.current_password, user.password
+            ):
                 raise ValueError("現在のパスワードが正しくありません")
-            
+
             # 新しいパスワードをハッシュ化
             user.password = pwd_context.hash(user_data.new_password)
 
@@ -191,5 +193,55 @@ class UserService:
             db.refresh(user)
             return user
         except IntegrityError:
+            db.rollback()
+            raise
+
+    @staticmethod
+    def delete_user_by_id(db: Session, user_id: int) -> bool:
+        """指定されたIDのユーザーを削除する
+
+        Args:
+            db: データベースセッション
+            user_id: 削除対象のユーザーID
+
+        Returns:
+            bool: 削除成功の場合True、ユーザーが存在しない場合False
+        """
+        user = UserService.get_user_by_id(db, user_id)
+        if not user:
+            return False
+
+        try:
+            db.delete(user)
+            db.commit()
+            return True
+        except Exception as e:
+            db.rollback()
+            raise e
+
+    @staticmethod
+    def delete_all_users(db: Session) -> int:
+        """全ユーザーを削除する
+
+        Args:
+            db: データベースセッション
+
+        Returns:
+            int: 削除されたユーザー数
+
+        Raises:
+            Exception: 削除処理中にエラーが発生した場合
+        """
+        try:
+            # 全ユーザーを取得して削除
+            users = db.query(User).all()
+            deleted_count = len(users)
+
+            for user in users:
+                db.delete(user)
+
+            db.commit()
+            return deleted_count
+        except Exception:
             db.rollback()
             raise

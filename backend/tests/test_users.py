@@ -25,7 +25,7 @@ from app.main import app
 from app.config.database import get_db
 from app.models.user import User
 from app.services.users import UserService
-from app.schemas.users import UserUpdate
+from app.schemas.users import UserUpdate, UserDeleteResponse
 
 
 class TestCreateUser:
@@ -1172,3 +1172,224 @@ class TestUpdateUser:
         # パスパラメータのバリデーションエラーを確認
         errors = response_data["detail"]
         assert any(error["loc"] == ["path", "user_id"] for error in errors)
+
+
+class TestDeleteUser:
+    """ユーザー削除エンドポイントのテストクラス"""
+
+    def test_delete_user_success(self, client: TestClient):
+        """ユーザー削除の正常系テスト"""
+        mock_db = MagicMock()
+        UserService.delete_user_by_id = MagicMock(return_value=True)
+
+        def override_get_db():
+            yield mock_db
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        try:
+            response = client.delete("/api/users/1")
+            assert response.status_code == 200
+            response_data = response.json()
+            assert response_data["message"] == "ユーザーが正常に削除されました"
+            assert response_data["deleted_count"] == 1
+            UserService.delete_user_by_id.assert_called_once_with(mock_db, 1)
+        finally:
+            app.dependency_overrides.clear()
+            UserService.delete_user_by_id.reset_mock()
+
+    def test_delete_user_not_found(self, client: TestClient):
+        """ユーザー削除の異常系テスト（存在しないユーザー）"""
+        mock_db = MagicMock()
+        UserService.delete_user_by_id = MagicMock(return_value=False)
+
+        def override_get_db():
+            yield mock_db
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        try:
+            response = client.delete("/api/users/999")
+            print(f"Response status: {response.status_code}")
+            print(f"Response body: {response.text}")
+            assert response.status_code == 404
+            response_data = response.json()
+            assert "999" in response_data["detail"]
+            assert "見つかりません" in response_data["detail"]
+            # モックが正しく呼び出されたことを確認
+            UserService.delete_user_by_id.assert_called_with(mock_db, 999)
+        finally:
+            app.dependency_overrides.clear()
+            UserService.delete_user_by_id.reset_mock()
+
+    def test_delete_user_invalid_id(self, client: TestClient):
+        """ユーザー削除の異常系テスト（不正なユーザーID）"""
+        response = client.delete("/api/users/invalid")
+        assert response.status_code == 422
+        response_data = response.json()
+        assert "detail" in response_data
+        errors = response_data["detail"]
+        assert any(error["loc"] == ["path", "user_id"] for error in errors)
+
+    def test_delete_user_database_error(self, client: TestClient):
+        """ユーザー削除の異常系テスト（データベースエラー）"""
+        mock_db = MagicMock()
+        UserService.delete_user_by_id = MagicMock(
+            side_effect=Exception("データベースエラー")
+        )
+
+        def override_get_db():
+            yield mock_db
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        try:
+            response = client.delete("/api/users/1")
+            assert response.status_code == 500
+            response_data = response.json()
+            assert "エラーが発生しました" in response_data["detail"]
+            assert "データベースエラー" in response_data["detail"]
+            UserService.delete_user_by_id.assert_called_once_with(mock_db, 1)
+        finally:
+            app.dependency_overrides.clear()
+            UserService.delete_user_by_id.reset_mock()
+
+
+class TestDeleteAllUsers:
+    """全ユーザー削除エンドポイントのテストクラス"""
+
+    def test_delete_all_users_success(self, client: TestClient):
+        """全ユーザー削除の正常系テスト"""
+        mock_db = MagicMock()
+        UserService.delete_all_users = MagicMock(return_value=3)
+
+        def override_get_db():
+            yield mock_db
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        try:
+            response = client.delete("/api/users/")
+            assert response.status_code == 200
+            response_data = response.json()
+            assert response_data["message"] == "3人のユーザーが正常に削除されました"
+            assert response_data["deleted_count"] == 3
+            UserService.delete_all_users.assert_called_once_with(mock_db)
+        finally:
+            app.dependency_overrides.clear()
+            UserService.delete_all_users.reset_mock()
+
+    def test_delete_all_users_empty(self, client: TestClient):
+        """全ユーザー削除の正常系テスト（ユーザーが存在しない場合）"""
+        mock_db = MagicMock()
+        UserService.delete_all_users = MagicMock(return_value=0)
+
+        def override_get_db():
+            yield mock_db
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        try:
+            response = client.delete("/api/users/")
+            assert response.status_code == 200
+            response_data = response.json()
+            assert response_data["message"] == "0人のユーザーが正常に削除されました"
+            assert response_data["deleted_count"] == 0
+            UserService.delete_all_users.assert_called_once_with(mock_db)
+        finally:
+            app.dependency_overrides.clear()
+            UserService.delete_all_users.reset_mock()
+
+    def test_delete_all_users_single_user(self, client: TestClient):
+        """全ユーザー削除の正常系テスト（ユーザーが1人の場合）"""
+        mock_db = MagicMock()
+        UserService.delete_all_users = MagicMock(return_value=1)
+
+        def override_get_db():
+            yield mock_db
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        try:
+            response = client.delete("/api/users/")
+            assert response.status_code == 200
+            response_data = response.json()
+            assert response_data["message"] == "1人のユーザーが正常に削除されました"
+            assert response_data["deleted_count"] == 1
+            UserService.delete_all_users.assert_called_once_with(mock_db)
+        finally:
+            app.dependency_overrides.clear()
+            UserService.delete_all_users.reset_mock()
+
+    def test_delete_all_users_database_error(self, client: TestClient):
+        """全ユーザー削除の異常系テスト（データベースエラー）"""
+        mock_db = MagicMock()
+        UserService.delete_all_users = MagicMock(
+            side_effect=Exception("データベースエラー")
+        )
+
+        def override_get_db():
+            yield mock_db
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        try:
+            response = client.delete("/api/users/")
+            assert response.status_code == 500
+            response_data = response.json()
+            assert "エラーが発生しました" in response_data["detail"]
+            assert "データベースエラー" in response_data["detail"]
+            UserService.delete_all_users.assert_called_once_with(mock_db)
+        finally:
+            app.dependency_overrides.clear()
+            UserService.delete_all_users.reset_mock()
+
+
+class TestUserDeleteIntegration:
+    """ユーザー削除エンドポイントの統合テストクラス"""
+
+    def test_user_delete_lifecycle(self, client: TestClient):
+        """ユーザー削除のライフサイクルテスト"""
+        mock_db = MagicMock()
+        mock_created_user = User(
+            id=1,
+            name="deleteuser",
+            email="delete@example.com",
+            password="hashed_password",
+        )
+
+        UserService.is_name_taken = MagicMock(return_value=False)
+        UserService.is_email_taken = MagicMock(return_value=False)
+        UserService.create_user = MagicMock(return_value=mock_created_user)
+        UserService.delete_user_by_id = MagicMock(return_value=True)
+
+        def override_get_db():
+            yield mock_db
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        try:
+            # 1. ユーザー作成
+            create_data = {
+                "name": "deleteuser",
+                "email": "delete@example.com",
+                "password": "password123",
+            }
+            create_response = client.post("/api/users/", json=create_data)
+            assert create_response.status_code == 201
+            created_user = create_response.json()
+
+            # 2. 作成されたユーザーを削除
+            delete_response = client.delete(f"/api/users/{created_user['id']}")
+            assert delete_response.status_code == 200
+            delete_result = delete_response.json()
+
+            # 3. 削除結果の検証
+            assert delete_result["message"] == "ユーザーが正常に削除されました"
+            assert delete_result["deleted_count"] == 1
+        finally:
+            app.dependency_overrides.clear()
+            UserService.is_name_taken.reset_mock()
+            UserService.is_email_taken.reset_mock()
+            UserService.create_user.reset_mock()
+            UserService.delete_user_by_id.reset_mock()
