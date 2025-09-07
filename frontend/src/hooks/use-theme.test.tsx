@@ -93,7 +93,7 @@ describe("Theme type", () => {
   test("正しいテーマタイプが定義されている", () => {
     const themes: Theme[] = ["light", "dark", "system"];
 
-    themes.forEach((theme) => {
+    themes.forEach(theme => {
       const contextValue = {
         theme,
         setTheme: () => {},

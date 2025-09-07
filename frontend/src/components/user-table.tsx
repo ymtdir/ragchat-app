@@ -44,14 +44,14 @@ export const createColumns = (
           table.getIsAllPageRowsSelected() ||
           (table.getIsSomePageRowsSelected() && "indeterminate")
         }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
         aria-label="全選択"
       />
     ),
     cell: ({ row }) => (
       <Checkbox
         checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        onCheckedChange={value => row.toggleSelected(!!value)}
         aria-label="行選択"
       />
     ),
@@ -211,7 +211,7 @@ export function UserTable({
     if (success) {
       // 一括削除成功時は親コンポーネントに通知
       const selectedRows = table.getFilteredSelectedRowModel().rows;
-      const userIds = selectedRows.map((row) => row.original.id);
+      const userIds = selectedRows.map(row => row.original.id);
       if (onBulkUserDelete) {
         onBulkUserDelete(userIds);
       }
@@ -255,7 +255,7 @@ export function UserTable({
         <Input
           placeholder="Filter emails..."
           value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
+          onChange={event =>
             table.getColumn("email")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
@@ -282,16 +282,14 @@ export function UserTable({
           <DropdownMenuContent align="end">
             {table
               .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
+              .filter(column => column.getCanHide())
+              .map(column => {
                 return (
                   <DropdownMenuCheckboxItem
                     key={column.id}
                     className="capitalize"
                     checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
+                    onCheckedChange={value => column.toggleVisibility(!!value)}
                   >
                     {column.id === "id" && "ID"}
                     {column.id === "name" && "Name"}
@@ -305,9 +303,9 @@ export function UserTable({
       <div className="overflow-hidden rounded-md border min-w-[800px]">
         <Table>
           <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
+            {table.getHeaderGroups().map(headerGroup => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
+                {headerGroup.headers.map(header => {
                   return (
                     <TableHead key={header.id}>
                       {header.isPlaceholder
@@ -324,12 +322,12 @@ export function UserTable({
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
+              table.getRowModel().rows.map(row => (
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                 >
-                  {row.getVisibleCells().map((cell) => (
+                  {row.getVisibleCells().map(cell => (
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
@@ -392,7 +390,7 @@ export function UserTable({
       <UserBulkDeleteDialog
         selectedUsers={table
           .getFilteredSelectedRowModel()
-          .rows.map((row) => row.original)}
+          .rows.map(row => row.original)}
         isOpen={isBulkDeleteDialogOpen}
         onClose={handleCloseBulkDeleteDialog}
         onConfirm={handleConfirmBulkDelete}

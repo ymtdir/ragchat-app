@@ -116,7 +116,7 @@ export function UserCreateModal({
   };
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
       [field]: value,
     }));
@@ -149,7 +149,7 @@ export function UserCreateModal({
                 <Input
                   id="name"
                   value={formData.name}
-                  onChange={(e) => handleInputChange("name", e.target.value)}
+                  onChange={e => handleInputChange("name", e.target.value)}
                   disabled={isLoading}
                   placeholder="ユーザー名を入力"
                 />
@@ -160,7 +160,7 @@ export function UserCreateModal({
                   id="email"
                   type="email"
                   value={formData.email}
-                  onChange={(e) => handleInputChange("email", e.target.value)}
+                  onChange={e => handleInputChange("email", e.target.value)}
                   disabled={isLoading}
                   placeholder="example@example.com"
                 />
@@ -171,9 +171,7 @@ export function UserCreateModal({
                   id="password"
                   type="password"
                   value={formData.password}
-                  onChange={(e) =>
-                    handleInputChange("password", e.target.value)
-                  }
+                  onChange={e => handleInputChange("password", e.target.value)}
                   disabled={isLoading}
                   placeholder="8文字以上で入力"
                 />
@@ -184,7 +182,7 @@ export function UserCreateModal({
                   id="confirm"
                   type="password"
                   value={formData.confirm_password}
-                  onChange={(e) =>
+                  onChange={e =>
                     handleInputChange("confirm_password", e.target.value)
                   }
                   disabled={isLoading}

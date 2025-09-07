@@ -58,7 +58,7 @@ export function AppSidebar() {
           <SidebarGroupLabel>RagChat App</SidebarGroupLabel>
           <SidebarGroupContent className="pt-4">
             <SidebarMenu>
-              {items.map((item) => (
+              {items.map(item => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <Link to={item.url}>

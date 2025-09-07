@@ -36,7 +36,7 @@ export function UserBulkDeleteDialog({
 
     try {
       // 各ユーザーを順次削除
-      const deletePromises = selectedUsers.map((user) =>
+      const deletePromises = selectedUsers.map(user =>
         fetch(`http://localhost:8000/api/users/${user.id}`, {
           method: "DELETE",
           headers: {
@@ -48,7 +48,7 @@ export function UserBulkDeleteDialog({
       const responses = await Promise.all(deletePromises);
 
       // 全ての削除が成功したかチェック
-      const allSuccessful = responses.every((response) => response.ok);
+      const allSuccessful = responses.every(response => response.ok);
 
       if (allSuccessful) {
         console.log(
@@ -81,7 +81,7 @@ export function UserBulkDeleteDialog({
             <br />
             <strong>削除対象:</strong>
             <br />
-            {selectedUsers.map((user) => (
+            {selectedUsers.map(user => (
               <React.Fragment key={user.id}>
                 • {user.name} (ID: {user.id})
                 <br />

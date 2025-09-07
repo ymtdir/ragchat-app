@@ -54,7 +54,7 @@ describe("UserTable", () => {
       // ローディング状態が表示されることを確認（スケルトン要素が存在する）
       const skeletonElements = screen.getAllByRole("generic");
       expect(
-        skeletonElements.some((el) => el.classList.contains("animate-pulse"))
+        skeletonElements.some(el => el.classList.contains("animate-pulse"))
       ).toBe(true);
     });
   });

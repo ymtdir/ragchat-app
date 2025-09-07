@@ -6,7 +6,7 @@ import { useTheme } from "@/hooks/use-theme";
 // matchMediaのモック
 Object.defineProperty(window, "matchMedia", {
   writable: true,
-  value: vi.fn().mockImplementation((query) => ({
+  value: vi.fn().mockImplementation(query => ({
     matches: false,
     media: query,
     onchange: null,
@@ -128,7 +128,7 @@ describe("ThemeProvider", () => {
 
   test("systemテーマでユーザーのシステム設定を使用する - ライトモード", () => {
     // ライトモードのシステム設定をモック
-    window.matchMedia = vi.fn().mockImplementation((query) => ({
+    window.matchMedia = vi.fn().mockImplementation(query => ({
       matches: query === "(prefers-color-scheme: dark)" ? false : true,
       media: query,
       onchange: null,
@@ -151,7 +151,7 @@ describe("ThemeProvider", () => {
 
   test("systemテーマでユーザーのシステム設定を使用する - ダークモード", () => {
     // ダークモードのシステム設定をモック
-    window.matchMedia = vi.fn().mockImplementation((query) => ({
+    window.matchMedia = vi.fn().mockImplementation(query => ({
       matches: query === "(prefers-color-scheme: dark)" ? true : false,
       media: query,
       onchange: null,
