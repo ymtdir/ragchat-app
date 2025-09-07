@@ -29,15 +29,14 @@ async def login(user_login: UserLogin, db: Session = Depends(get_db)):
     try:
         result = AuthService.login_user(db, user_login)
         return Token(
-            access_token=result["access_token"],
-            token_type=result["token_type"]
+            access_token=result["access_token"], token_type=result["token_type"]
         )
     except HTTPException:
         raise
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="ログイン処理中にエラーが発生しました"
+            detail="ログイン処理中にエラーが発生しました",
         )
 
 
@@ -51,4 +50,6 @@ async def logout():
     Returns:
         dict: ログアウト成功メッセージ
     """
-    return {"message": "ログアウトしました。クライアント側でトークンを削除してください。"}
+    return {
+        "message": "ログアウトしました。クライアント側でトークンを削除してください。"
+    }

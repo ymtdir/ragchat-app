@@ -41,10 +41,10 @@ class TestLogin:
         # モックユーザーオブジェクト（未使用のため削除）
 
         # AuthServiceのメソッドをモック化
-        with patch('app.services.auth.AuthService.login_user') as mock_login:
+        with patch("app.services.auth.AuthService.login_user") as mock_login:
             mock_login.return_value = {
                 "access_token": "mock_jwt_token",
-                "token_type": "bearer"
+                "token_type": "bearer",
             }
 
             # データベースセッションをオーバーライド
@@ -108,7 +108,10 @@ class TestLogin:
             assert response.status_code == 401
             response_data = response.json()
             assert "detail" in response_data
-            assert "メールアドレスまたはパスワードが正しくありません" in response_data["detail"]
+            assert (
+                "メールアドレスまたはパスワードが正しくありません"
+                in response_data["detail"]
+            )
 
             # サービスメソッドの呼び出し確認
             AuthService.authenticate_user.assert_called_once_with(
@@ -212,7 +215,7 @@ class TestAuthService:
         )
 
         # AuthService.authenticate_userメソッド全体をモック化
-        with patch.object(AuthService, 'authenticate_user') as mock_authenticate:
+        with patch.object(AuthService, "authenticate_user") as mock_authenticate:
             mock_authenticate.return_value = mock_user
 
             # 認証テスト
@@ -235,7 +238,7 @@ class TestAuthService:
         mock_db = MagicMock()
 
         # AuthService.authenticate_userメソッド全体をモック化
-        with patch.object(AuthService, 'authenticate_user') as mock_authenticate:
+        with patch.object(AuthService, "authenticate_user") as mock_authenticate:
             mock_authenticate.return_value = None
 
             # 認証テスト
@@ -258,7 +261,7 @@ class TestAuthService:
         mock_db = MagicMock()
 
         # AuthService.authenticate_userメソッド全体をモック化
-        with patch.object(AuthService, 'authenticate_user') as mock_authenticate:
+        with patch.object(AuthService, "authenticate_user") as mock_authenticate:
             mock_authenticate.return_value = None
 
             # 認証テスト
