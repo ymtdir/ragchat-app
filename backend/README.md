@@ -11,18 +11,17 @@ FastAPI + ChromaDB を使ったベクトル検索 API
 - **Embedding**: SentenceTransformer (multilingual-e5-large)
 - **Language**: Python 3.12
 
-## 🚀 個別開発での起動方法
-
-バックエンドのみを開発する場合の手順です。
+## 🚀 開発環境セットアップ
 
 ### 前提条件
 
 - Python 3.12 以上がインストールされていること
+- Docker と Docker Compose がインストールされていること
 - ターミナル環境が使用可能であること
   - Windows: PowerShell または Command Prompt
   - macOS/Linux: Terminal
 
-### 1. 環境設定
+### 1. 仮想環境の作成と有効化
 
 **Windows:**
 
@@ -50,67 +49,11 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 2. 設定ファイルの準備
+### 2. アプリケーションの起動
 
-`.env.example`をコピーして設定ファイルを作成します。
+プロジェクト全体は Docker で起動します。詳細は、ルートディレクトリの`README.md`を参照してください。
 
-**Windows:**
-
-```cmd
-# .env.exampleを.envにコピー
-copy .env.example .env
-
-# 必要に応じて.envファイルの内容を編集
-notepad .env
-```
-
-**macOS/Linux:**
-
-```bash
-# .env.exampleを.envにコピー
-cp .env.example .env
-
-# 必要に応じて.envファイルの内容を編集
-nano .env
-# または
-vim .env
-```
-
-**Windows (コマンドプロンプト):**
-
-```cmd
-copy .env.example .env
-```
-
-**Windows (PowerShell):**
-
-```powershell
-cp .env.example .env
-```
-
-**macOS/Linux:**
-
-```bash
-cp .env.example .env
-```
-
-### 3. アプリケーションの起動
-
-**Windows:**
-
-```cmd
-# 開発サーバーの起動
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-```
-
-**macOS/Linux:**
-
-```bash
-# 開発サーバーの起動
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-```
-
-### 4. アクセス先
+### 3. アクセス先
 
 | サービス   | URL                         |
 | ---------- | --------------------------- |
@@ -132,23 +75,67 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 | `MAX_SEARCH_RESULTS`     | `50`                             | 最大検索結果数               |
 | `MAX_TEXT_LENGTH`        | `10000`                          | 最大テキスト長               |
 
-### その他の設定項目（オプション）
+## 🧪 テスト・品質管理
 
-設定ファイル（`app/config/settings.py`）で定義されている他の項目も環境変数で上書き可能です：
+### テスト実行
 
+**すべてのテストを実行:**
+
+```bash
+# 仮想環境を有効化してから実行
+python -m pytest
 ```
-# アプリケーション情報
-APP_NAME=RAG Chat API
-APP_VERSION=1.0.0
 
-# ChromaDB詳細設定
-COLLECTION_NAME=documents
-COLLECTION_DESCRIPTION=文書の特徴量を保存するコレクション
+**カバレッジ付きでテスト実行:**
 
-# 検索制限設定
-MAX_SEARCH_RESULTS=50
-MAX_TEXT_LENGTH=10000
+```bash
+python -m pytest --cov=app --cov-report=html --cov-report=term
 ```
+
+**特定のテストファイルを実行:**
+
+```bash
+python -m pytest tests/test_health.py -v
+```
+
+**特定のテスト関数を実行:**
+
+```bash
+python -m pytest tests/test_health.py::test_health_check -v
+```
+
+### リント実行
+
+**flake8 によるコード品質チェック:**
+
+```bash
+flake8 app/ tests/
+```
+
+**特定のディレクトリをチェック:**
+
+```bash
+flake8 app/
+```
+
+**注意:** flake8 の設定は `.flake8` ファイルで管理されており、最大行長は 88 文字に設定されています。
+
+### フォーマット
+
+**black による自動フォーマット:**
+
+```bash
+# コードのフォーマット実行
+black app/ tests/
+
+# フォーマットのチェックのみ（変更しない）
+black --check app/ tests/
+
+# 差分表示
+black --diff app/ tests/
+```
+
+**注意:** black の設定は `pyproject.toml` ファイルで管理されており、行長は 88 文字、Python 3.12 対応に設定されています。
 
 ## 🧪 API テスト
 
@@ -259,29 +246,14 @@ rm -rf vector_db/
 
 ## 🐳 Docker での起動
 
-個別で Docker を使用する場合：
+通常はプロジェクト全体を Docker Compose で起動します。詳細は、ルートディレクトリの`README.md`を参照してください。
 
-**Windows:**
-
-```cmd
-# イメージのビルド
-docker build -t ragchat-backend .
-
-# コンテナの起動（PowerShell）
-docker run -p 8000:8000 -v ${PWD}:/app ragchat-backend
-
-# または Command Prompt
-docker run -p 8000:8000 -v %cd%:/app ragchat-backend
-```
-
-**macOS/Linux:**
+個別でバックエンドのみを Docker で起動する場合：
 
 ```bash
 # イメージのビルド
 docker build -t ragchat-backend .
 
 # コンテナの起動
-docker run -p 8000:8000 -v $(pwd):/app ragchat-backend
+docker run -p 8000:8000 ragchat-backend
 ```
-
-**注意**: プロジェクト全体での起動は、ルートディレクトリの`README.md`を参照してください。
