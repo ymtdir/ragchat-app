@@ -68,17 +68,20 @@ describe("UserDeleteDialog", () => {
     test("削除ボタンをクリックするとAPIが呼ばれ、成功時にonConfirm(true)が呼ばれる", async () => {
       const onConfirm = vi.fn();
       const onLoadingChange = vi.fn();
-      
+
       // 成功レスポンスをモック
       (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ message: "ユーザーが正常に削除されました", deleted_count: 1 }),
+        json: async () => ({
+          message: "ユーザーが正常に削除されました",
+          deleted_count: 1,
+        }),
       });
 
       render(
-        <UserDeleteDialog 
-          {...defaultProps} 
-          onConfirm={onConfirm} 
+        <UserDeleteDialog
+          {...defaultProps}
+          onConfirm={onConfirm}
           onLoadingChange={onLoadingChange}
         />
       );
@@ -106,7 +109,7 @@ describe("UserDeleteDialog", () => {
     test("削除ボタンをクリックするとAPIが呼ばれ、失敗時にonConfirm(false)が呼ばれる", async () => {
       const onConfirm = vi.fn();
       const onLoadingChange = vi.fn();
-      
+
       // 失敗レスポンスをモック
       (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
         ok: false,
@@ -116,9 +119,9 @@ describe("UserDeleteDialog", () => {
       });
 
       render(
-        <UserDeleteDialog 
-          {...defaultProps} 
-          onConfirm={onConfirm} 
+        <UserDeleteDialog
+          {...defaultProps}
+          onConfirm={onConfirm}
           onLoadingChange={onLoadingChange}
         />
       );
@@ -137,20 +140,27 @@ describe("UserDeleteDialog", () => {
   describe("ローディング状態", () => {
     test("削除処理中はボタンが無効化され、テキストが変わる", async () => {
       const onLoadingChange = vi.fn();
-      
+
       // 遅延レスポンスをモック
       (global.fetch as ReturnType<typeof vi.fn>).mockImplementationOnce(
-        () => new Promise(resolve => setTimeout(() => resolve({
-          ok: true,
-          json: async () => ({ message: "ユーザーが正常に削除されました", deleted_count: 1 }),
-        }), 100))
+        () =>
+          new Promise(resolve =>
+            setTimeout(
+              () =>
+                resolve({
+                  ok: true,
+                  json: async () => ({
+                    message: "ユーザーが正常に削除されました",
+                    deleted_count: 1,
+                  }),
+                }),
+              100
+            )
+          )
       );
 
       render(
-        <UserDeleteDialog 
-          {...defaultProps} 
-          onLoadingChange={onLoadingChange}
-        />
+        <UserDeleteDialog {...defaultProps} onLoadingChange={onLoadingChange} />
       );
 
       const deleteButton = screen.getByText("削除");

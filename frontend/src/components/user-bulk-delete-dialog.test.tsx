@@ -168,7 +168,7 @@ describe("UserBulkDeleteDialog", () => {
       // 遅延レスポンスをモック
       (global.fetch as ReturnType<typeof vi.fn>).mockImplementation(
         () =>
-          new Promise((resolve) =>
+          new Promise(resolve =>
             setTimeout(
               () =>
                 resolve({

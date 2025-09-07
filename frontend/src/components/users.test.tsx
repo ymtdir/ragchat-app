@@ -33,7 +33,7 @@ vi.mock("./user-table", () => ({
     <div data-testid="user-table">
       <div data-testid="loading">{isLoading ? "Loading" : "Loaded"}</div>
       <div data-testid="user-count">{data.length} users</div>
-      {data.map((user) => (
+      {data.map(user => (
         <div key={user.id} data-testid={`user-${user.id}`}>
           {user.name} - {user.email}
         </div>

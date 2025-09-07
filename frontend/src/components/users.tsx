@@ -39,26 +39,24 @@ export function UsersPage() {
 
   const handleUserUpdate = (updatedUser: User) => {
     // ユーザー情報が更新されたら、テーブルを再読み込み
-    setUsers((prevUsers) =>
-      prevUsers.map((user) => (user.id === updatedUser.id ? updatedUser : user))
+    setUsers(prevUsers =>
+      prevUsers.map(user => (user.id === updatedUser.id ? updatedUser : user))
     );
   };
 
   const handleUserCreate = (newUser: User) => {
     // 新しいユーザーが作成されたら、テーブルに追加
-    setUsers((prevUsers) => [...prevUsers, newUser]);
+    setUsers(prevUsers => [...prevUsers, newUser]);
   };
 
   const handleUserDelete = (userId: number) => {
     // ユーザーが削除されたら、テーブルから削除
-    setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId));
+    setUsers(prevUsers => prevUsers.filter(user => user.id !== userId));
   };
 
   const handleBulkUserDelete = (userIds: number[]) => {
     // 複数のユーザーが削除されたら、テーブルから削除
-    setUsers((prevUsers) =>
-      prevUsers.filter((user) => !userIds.includes(user.id))
-    );
+    setUsers(prevUsers => prevUsers.filter(user => !userIds.includes(user.id)));
   };
 
   const renderContent = () => {

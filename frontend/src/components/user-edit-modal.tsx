@@ -193,14 +193,14 @@ export function UserEditModal({
   };
 
   const handleInputChange = (field: string, value: string | boolean) => {
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
       [field]: value,
     }));
   };
 
   const handlePasswordChange = (field: string, value: string) => {
-    setPasswordData((prev) => ({
+    setPasswordData(prev => ({
       ...prev,
       [field]: value,
     }));
@@ -241,9 +241,7 @@ export function UserEditModal({
                     <Input
                       id="name"
                       value={formData.name}
-                      onChange={(e) =>
-                        handleInputChange("name", e.target.value)
-                      }
+                      onChange={e => handleInputChange("name", e.target.value)}
                       disabled={isLoading}
                     />
                   </div>
@@ -252,9 +250,7 @@ export function UserEditModal({
                     <Input
                       id="email"
                       value={formData.email}
-                      onChange={(e) =>
-                        handleInputChange("email", e.target.value)
-                      }
+                      onChange={e => handleInputChange("email", e.target.value)}
                       disabled={isLoading}
                     />
                   </div>
@@ -278,7 +274,7 @@ export function UserEditModal({
                       id="current"
                       type="password"
                       value={passwordData.current_password}
-                      onChange={(e) =>
+                      onChange={e =>
                         handlePasswordChange("current_password", e.target.value)
                       }
                       disabled={isLoading}
@@ -290,7 +286,7 @@ export function UserEditModal({
                       id="new"
                       type="password"
                       value={passwordData.new_password}
-                      onChange={(e) =>
+                      onChange={e =>
                         handlePasswordChange("new_password", e.target.value)
                       }
                       disabled={isLoading}
@@ -302,7 +298,7 @@ export function UserEditModal({
                       id="confirm"
                       type="password"
                       value={passwordData.confirm_password}
-                      onChange={(e) =>
+                      onChange={e =>
                         handlePasswordChange("confirm_password", e.target.value)
                       }
                       disabled={isLoading}
