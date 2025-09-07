@@ -28,6 +28,7 @@ import {
 import { useUserTable } from "@/hooks/use-user-table";
 import { UserEditModal } from "./user-edit-modal";
 import { UserDeleteDialog } from "./user-delete-dialog";
+import { UserBulkDeleteDialog } from "./user-bulk-delete-dialog";
 import type { User } from "@/types/api";
 
 // columnsの定義を関数内に移動するため、ここでは型のみ定義
@@ -134,6 +135,7 @@ interface UserTableProps {
   isLoading?: boolean;
   onUserUpdate?: (updatedUser: User) => void;
   onUserDelete?: (userId: number) => void;
+  onBulkUserDelete?: (userIds: number[]) => void;
 }
 
 export function UserTable({
@@ -141,12 +143,15 @@ export function UserTable({
   isLoading = false,
   onUserUpdate,
   onUserDelete,
+  onBulkUserDelete,
 }: UserTableProps) {
   const [editingUser, setEditingUser] = React.useState<User | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
   const [deletingUser, setDeletingUser] = React.useState<User | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
-  const [isDeleting, setIsDeleting] = React.useState(false);
+  const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] =
+    React.useState(false);
+  const [isBulkDeleting, setIsBulkDeleting] = React.useState(false);
 
   const handleEditUser = (user: User) => {
     setEditingUser(user);
@@ -193,11 +198,42 @@ export function UserTable({
   const handleCloseDeleteDialog = () => {
     setIsDeleteDialogOpen(false);
     setDeletingUser(null);
-    setIsDeleting(false);
+  };
+
+  const handleBulkDelete = () => {
+    const selectedRows = table.getFilteredSelectedRowModel().rows;
+    if (selectedRows.length > 0) {
+      setIsBulkDeleteDialogOpen(true);
+    }
+  };
+
+  const handleConfirmBulkDelete = async (success: boolean) => {
+    if (success) {
+      // 一括削除成功時は親コンポーネントに通知
+      const selectedRows = table.getFilteredSelectedRowModel().rows;
+      const userIds = selectedRows.map((row) => row.original.id);
+      if (onBulkUserDelete) {
+        onBulkUserDelete(userIds);
+      }
+      // 選択をクリア
+      table.toggleAllPageRowsSelected(false);
+    } else {
+      // 一括削除失敗時はエラーメッセージを表示
+      alert("一括削除に失敗しました。");
+    }
+    setIsBulkDeleteDialogOpen(false);
+  };
+
+  const handleCloseBulkDeleteDialog = () => {
+    setIsBulkDeleteDialogOpen(false);
+    setIsBulkDeleting(false);
   };
 
   const columns = createColumns(handleEditUser, handleDeleteUser);
   const { table } = useUserTable(data, columns);
+
+  // 選択された行の数を取得
+  const selectedRowCount = table.getFilteredSelectedRowModel().rows.length;
 
   if (isLoading) {
     return (
@@ -224,6 +260,19 @@ export function UserTable({
           }
           className="max-w-sm"
         />
+        {selectedRowCount > 0 && (
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={handleBulkDelete}
+            disabled={isBulkDeleting}
+            className="ml-2"
+          >
+            {isBulkDeleting
+              ? "削除中..."
+              : `選択した${selectedRowCount}件を削除`}
+          </Button>
+        )}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
@@ -338,7 +387,16 @@ export function UserTable({
         isOpen={isDeleteDialogOpen}
         onClose={handleCloseDeleteDialog}
         onConfirm={handleConfirmDelete}
-        onLoadingChange={setIsDeleting}
+        onLoadingChange={() => {}}
+      />
+      <UserBulkDeleteDialog
+        selectedUsers={table
+          .getFilteredSelectedRowModel()
+          .rows.map((row) => row.original)}
+        isOpen={isBulkDeleteDialogOpen}
+        onClose={handleCloseBulkDeleteDialog}
+        onConfirm={handleConfirmBulkDelete}
+        onLoadingChange={setIsBulkDeleting}
       />
     </div>
   );

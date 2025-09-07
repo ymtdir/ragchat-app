@@ -11,56 +11,58 @@ import {
 } from "@/components/ui/alert-dialog";
 import type { User } from "@/types/api";
 
-interface UserDeleteDialogProps {
-  user: User | null;
+interface UserBulkDeleteDialogProps {
+  selectedUsers: User[];
   isOpen: boolean;
   onClose: () => void;
   onConfirm: (success: boolean) => void;
   onLoadingChange?: (loading: boolean) => void;
 }
 
-export function UserDeleteDialog({
-  user,
+export function UserBulkDeleteDialog({
+  selectedUsers,
   isOpen,
   onClose,
   onConfirm,
   onLoadingChange,
-}: UserDeleteDialogProps) {
+}: UserBulkDeleteDialogProps) {
   const [isLoading, setIsLoading] = React.useState(false);
 
-  const handleDelete = async () => {
-    if (!user) return;
+  const handleBulkDelete = async () => {
+    if (selectedUsers.length === 0) return;
 
     setIsLoading(true);
     onLoadingChange?.(true);
 
     try {
-      const response = await fetch(
-        `http://localhost:8000/api/users/${user.id}`,
-        {
+      // 各ユーザーを順次削除
+      const deletePromises = selectedUsers.map((user) =>
+        fetch(`http://localhost:8000/api/users/${user.id}`, {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        })
       );
 
-      if (response.ok) {
-        const result = await response.json();
-        console.log("削除成功:", result);
+      const responses = await Promise.all(deletePromises);
+
+      // 全ての削除が成功したかチェック
+      const allSuccessful = responses.every((response) => response.ok);
+
+      if (allSuccessful) {
+        console.log(
+          "一括削除成功:",
+          selectedUsers.length,
+          "件のユーザーを削除しました"
+        );
         onConfirm(true);
       } else {
-        const errorData = await response.json().catch(() => ({}));
-        console.error(
-          "削除エラー:",
-          response.status,
-          response.statusText,
-          errorData
-        );
+        console.error("一括削除エラー: 一部のユーザーの削除に失敗しました");
         onConfirm(false);
       }
     } catch (error) {
-      console.error("削除エラー:", error);
+      console.error("一括削除エラー:", error);
       onConfirm(false);
     } finally {
       setIsLoading(false);
@@ -72,9 +74,19 @@ export function UserDeleteDialog({
     <AlertDialog open={isOpen} onOpenChange={onClose}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>ユーザーを削除</AlertDialogTitle>
+          <AlertDialogTitle>選択したユーザーを一括削除</AlertDialogTitle>
           <AlertDialogDescription>
-            ユーザー "{user?.name}" を削除しますか？
+            選択した {selectedUsers.length} 件のユーザーを削除しますか？
+            <br />
+            <br />
+            <strong>削除対象:</strong>
+            <br />
+            {selectedUsers.map((user) => (
+              <React.Fragment key={user.id}>
+                • {user.name} (ID: {user.id})
+                <br />
+              </React.Fragment>
+            ))}
             <br />
             この操作は取り消すことができません。
           </AlertDialogDescription>
@@ -82,11 +94,11 @@ export function UserDeleteDialog({
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isLoading}>キャンセル</AlertDialogCancel>
           <AlertDialogAction
-            onClick={handleDelete}
+            onClick={handleBulkDelete}
             disabled={isLoading}
             className="bg-red-600 hover:bg-red-700 focus:ring-red-600 text-white"
           >
-            {isLoading ? "削除中..." : "削除"}
+            {isLoading ? "削除中..." : `${selectedUsers.length}件を削除`}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

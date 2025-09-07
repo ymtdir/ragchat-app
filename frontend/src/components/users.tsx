@@ -54,6 +54,13 @@ export function UsersPage() {
     setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId));
   };
 
+  const handleBulkUserDelete = (userIds: number[]) => {
+    // 複数のユーザーが削除されたら、テーブルから削除
+    setUsers((prevUsers) =>
+      prevUsers.filter((user) => !userIds.includes(user.id))
+    );
+  };
+
   const renderContent = () => {
     if (error) {
       return (
@@ -100,6 +107,7 @@ export function UsersPage() {
           isLoading={isLoading}
           onUserUpdate={handleUserUpdate}
           onUserDelete={handleUserDelete}
+          onBulkUserDelete={handleBulkUserDelete}
         />
       </div>
     );
