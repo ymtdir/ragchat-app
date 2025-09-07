@@ -2,20 +2,8 @@
 "use client";
 
 import * as React from "react";
-import {
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-import type {
-  ColumnDef,
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState,
-} from "@tanstack/react-table";
+import { flexRender } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -37,17 +25,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useUserTable } from "@/hooks/use-user-table";
+import { UserEditModal } from "./user-edit-modal";
+import { UserDeleteDialog } from "./user-delete-dialog";
+import { UserBulkDeleteDialog } from "./user-bulk-delete-dialog";
+import type { User } from "@/types/api";
 
-export type User = {
-  id: number;
-  email: string;
-  name: string;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-};
-
-export const columns: ColumnDef<User>[] = [
+// columnsの定義を関数内に移動するため、ここでは型のみ定義
+export const createColumns = (
+  handleEditUser: (user: User) => void,
+  handleDeleteUser: (user: User) => void
+): ColumnDef<User>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -126,8 +114,15 @@ export const columns: ColumnDef<User>[] = [
               ユーザーIDをコピー
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>ユーザー詳細を表示</DropdownMenuItem>
-            <DropdownMenuItem>ユーザーを編集</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleEditUser(user)}>
+              ユーザー情報を編集
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => handleDeleteUser(user)}
+              className="text-red-600 focus:text-red-600"
+            >
+              ユーザーを削除
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );
@@ -138,35 +133,107 @@ export const columns: ColumnDef<User>[] = [
 interface UserTableProps {
   data: User[];
   isLoading?: boolean;
+  onUserUpdate?: (updatedUser: User) => void;
+  onUserDelete?: (userId: number) => void;
+  onBulkUserDelete?: (userIds: number[]) => void;
 }
 
-export function UserTable({ data, isLoading = false }: UserTableProps) {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
+export function UserTable({
+  data,
+  isLoading = false,
+  onUserUpdate,
+  onUserDelete,
+  onBulkUserDelete,
+}: UserTableProps) {
+  const [editingUser, setEditingUser] = React.useState<User | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
+  const [deletingUser, setDeletingUser] = React.useState<User | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
+  const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] =
+    React.useState(false);
+  const [isBulkDeleting, setIsBulkDeleting] = React.useState(false);
 
-  const table = useReactTable({
-    data,
-    columns,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
-    state: {
-      sorting,
-      columnFilters,
-      columnVisibility,
-      rowSelection,
-    },
-  });
+  const handleEditUser = (user: User) => {
+    setEditingUser(user);
+    setIsEditModalOpen(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
+    setEditingUser(null);
+  };
+
+  const handleSaveUser = (updatedUser: User) => {
+    // 親コンポーネントに更新を通知
+    if (onUserUpdate) {
+      onUserUpdate(updatedUser);
+    }
+  };
+
+  const handleDeleteUser = (user: User) => {
+    // 削除確認ダイアログを表示
+    setDeletingUser(user);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async (success: boolean) => {
+    if (!deletingUser) return;
+
+    if (success) {
+      // 削除成功時は親コンポーネントに通知
+      if (onUserDelete) {
+        onUserDelete(deletingUser.id);
+      }
+      setIsDeleteDialogOpen(false);
+      setDeletingUser(null);
+    } else {
+      // 削除失敗時はダイアログを閉じる
+      setIsDeleteDialogOpen(false);
+      setDeletingUser(null);
+      // エラーメッセージを表示する場合はここで処理
+      alert("ユーザーの削除に失敗しました。");
+    }
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setIsDeleteDialogOpen(false);
+    setDeletingUser(null);
+  };
+
+  const handleBulkDelete = () => {
+    const selectedRows = table.getFilteredSelectedRowModel().rows;
+    if (selectedRows.length > 0) {
+      setIsBulkDeleteDialogOpen(true);
+    }
+  };
+
+  const handleConfirmBulkDelete = async (success: boolean) => {
+    if (success) {
+      // 一括削除成功時は親コンポーネントに通知
+      const selectedRows = table.getFilteredSelectedRowModel().rows;
+      const userIds = selectedRows.map((row) => row.original.id);
+      if (onBulkUserDelete) {
+        onBulkUserDelete(userIds);
+      }
+      // 選択をクリア
+      table.toggleAllPageRowsSelected(false);
+    } else {
+      // 一括削除失敗時はエラーメッセージを表示
+      alert("一括削除に失敗しました。");
+    }
+    setIsBulkDeleteDialogOpen(false);
+  };
+
+  const handleCloseBulkDeleteDialog = () => {
+    setIsBulkDeleteDialogOpen(false);
+    setIsBulkDeleting(false);
+  };
+
+  const columns = createColumns(handleEditUser, handleDeleteUser);
+  const { table } = useUserTable(data, columns);
+
+  // 選択された行の数を取得
+  const selectedRowCount = table.getFilteredSelectedRowModel().rows.length;
 
   if (isLoading) {
     return (
@@ -193,6 +260,19 @@ export function UserTable({ data, isLoading = false }: UserTableProps) {
           }
           className="max-w-sm"
         />
+        {selectedRowCount > 0 && (
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={handleBulkDelete}
+            disabled={isBulkDeleting}
+            className="ml-2"
+          >
+            {isBulkDeleting
+              ? "削除中..."
+              : `選択した${selectedRowCount}件を削除`}
+          </Button>
+        )}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
@@ -296,6 +376,28 @@ export function UserTable({ data, isLoading = false }: UserTableProps) {
           </Button>
         </div>
       </div>
+      <UserEditModal
+        user={editingUser}
+        isOpen={isEditModalOpen}
+        onClose={handleCloseEditModal}
+        onSave={handleSaveUser}
+      />
+      <UserDeleteDialog
+        user={deletingUser}
+        isOpen={isDeleteDialogOpen}
+        onClose={handleCloseDeleteDialog}
+        onConfirm={handleConfirmDelete}
+        onLoadingChange={() => {}}
+      />
+      <UserBulkDeleteDialog
+        selectedUsers={table
+          .getFilteredSelectedRowModel()
+          .rows.map((row) => row.original)}
+        isOpen={isBulkDeleteDialogOpen}
+        onClose={handleCloseBulkDeleteDialog}
+        onConfirm={handleConfirmBulkDelete}
+        onLoadingChange={setIsBulkDeleting}
+      />
     </div>
   );
 }

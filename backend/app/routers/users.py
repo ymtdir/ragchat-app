@@ -9,7 +9,13 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
 from ..config.database import get_db
-from ..schemas.users import UserCreate, UserResponse, UsersResponse
+from ..schemas.users import (
+    UserCreate,
+    UserResponse,
+    UsersResponse,
+    UserUpdate,
+    UserDeleteResponse,
+)
 from ..services.users import UserService
 
 # ユーザー管理用ルーター
@@ -128,3 +134,142 @@ async def get_user(
         )
 
     return UserResponse.model_validate(user)
+
+
+@router.put(
+    "/{user_id}",
+    response_model=UserResponse,
+    summary="ユーザー更新",
+    description="指定されたIDのユーザー情報を更新します。名前・メールアドレスとパスワードの両方を更新可能です。",
+    response_description="更新されたユーザー情報",
+)
+async def update_user(
+    user_id: int,  # パスパラメータ
+    user_data: UserUpdate,  # リクエストボディ
+    db: Session = Depends(get_db),  # データベースセッション（依存性注入）
+) -> UserResponse:
+    """ユーザー情報を更新する
+
+    Args:
+        user_id: ユーザーID
+        user_data: 更新データ（自動的にバリデーション済み）
+        db: データベースセッション（依存性注入）
+
+    Returns:
+        UserResponse: 更新されたユーザー情報
+
+    Raises:
+        HTTPException: ユーザーが存在しない場合（404）
+        HTTPException: パスワード変更時に現在のパスワードが正しくない場合（400）
+        HTTPException: ユーザー名またはメールアドレスが重複している場合（400）
+    """
+
+    try:
+        updated_user = UserService.update_user(db, user_id, user_data)
+        if not updated_user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"ID {user_id} のユーザーが見つかりません",
+            )
+
+        return UserResponse.model_validate(updated_user)
+
+    except ValueError as e:
+        # パスワード関連のエラー
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
+
+    except IntegrityError:
+        # データベース制約違反（重複エラー）
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="ユーザー名またはメールアドレスが既に使用されています",
+        )
+
+
+@router.delete(
+    "/{user_id}",
+    response_model=UserDeleteResponse,
+    summary="ユーザー削除",
+    description="指定されたIDのユーザーを削除します。",
+    response_description="削除結果",
+)
+async def delete_user(
+    user_id: int,  # パスパラメータ
+    db: Session = Depends(get_db),  # データベースセッション（依存性注入）
+) -> UserDeleteResponse:
+    """指定されたIDのユーザーを削除する
+
+    Args:
+        user_id: 削除対象のユーザーID
+        db: データベースセッション（依存性注入）
+
+    Returns:
+        UserDeleteResponse: 削除結果
+
+    Raises:
+        HTTPException: ユーザーが存在しない場合（404）
+        HTTPException: 削除処理中にエラーが発生した場合（500）
+    """
+
+    try:
+        success = UserService.delete_user_by_id(db, user_id)
+        if not success:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"ID {user_id} のユーザーが見つかりません",
+            )
+
+        return UserDeleteResponse(
+            message="ユーザーが正常に削除されました",
+            deleted_count=1,
+        )
+
+    except HTTPException:
+        # HTTPExceptionは再キャッチしない
+        raise
+    except Exception as e:
+        print(f"Delete endpoint error: {type(e).__name__}: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"ユーザー削除中にエラーが発生しました: {str(e)}",
+        )
+
+
+@router.delete(
+    "/",
+    response_model=UserDeleteResponse,
+    summary="全ユーザー削除",
+    description="登録されている全ユーザーを削除します。この操作は取り消すことができません。",
+    response_description="削除結果",
+)
+async def delete_all_users(
+    db: Session = Depends(get_db),  # データベースセッション（依存性注入）
+) -> UserDeleteResponse:
+    """全ユーザーを削除する
+
+    Args:
+        db: データベースセッション（依存性注入）
+
+    Returns:
+        UserDeleteResponse: 削除結果
+
+    Raises:
+        HTTPException: 削除処理中にエラーが発生した場合（500）
+    """
+
+    try:
+        deleted_count = UserService.delete_all_users(db)
+
+        return UserDeleteResponse(
+            message=f"{deleted_count}人のユーザーが正常に削除されました",
+            deleted_count=deleted_count,
+        )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"全ユーザー削除中にエラーが発生しました: {str(e)}",
+        )
