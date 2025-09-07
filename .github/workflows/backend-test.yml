@@ -34,8 +34,15 @@ jobs:
           python -m pip install --upgrade pip  # pipを最新に更新
           # requirements.txtが存在する場合のみインストール
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          # Lint・カバレッジ用パッケージをインストール
-          pip install flake8 pytest-cov
+          # Lint・カバレッジ・フォーマット用パッケージをインストール
+          pip install flake8 pytest-cov black
+
+      # フォーマットチェック
+      - name: Check code formatting
+        working-directory: ./backend
+        run: |
+          # blackによるフォーマットチェック
+          black --check app/ tests/
 
       # Lint実行
       - name: Run lint
