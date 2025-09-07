@@ -25,7 +25,6 @@ from app.main import app
 from app.config.database import get_db
 from app.models.user import User
 from app.services.users import UserService
-from app.schemas.users import UserUpdate, UserDeleteResponse
 
 
 class TestCreateUser:
