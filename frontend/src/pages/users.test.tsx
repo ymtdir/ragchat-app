@@ -21,7 +21,7 @@ const mockUsers: User[] = [
 ];
 
 // UserTableのモック
-vi.mock("./user-table", () => ({
+vi.mock("@/components/user/user-table", () => ({
   UserTable: ({
     data,
     isLoading,
@@ -43,7 +43,7 @@ vi.mock("./user-table", () => ({
 }));
 
 // AppSidebarのモック
-vi.mock("./app-sidebar", () => ({
+vi.mock("@/components/layout/app-sidebar", () => ({
   AppSidebar: () => <div data-testid="app-sidebar">Sidebar</div>,
 }));
 

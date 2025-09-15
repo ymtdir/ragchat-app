@@ -1,6 +1,6 @@
 import { expect, test, describe, vi, beforeEach, afterEach } from "vitest";
 import { UserService } from "./user-service";
-import type { User } from "@/components/user-table";
+import type { User } from "@/types/api";
 
 // fetchのモック
 const mockFetch = vi.fn();
@@ -23,17 +23,11 @@ const mockUsers: User[] = [
     id: 1,
     email: "test1@example.com",
     name: "testuser1",
-    is_active: true,
-    created_at: "2024-01-01T00:00:00Z",
-    updated_at: "2024-01-01T00:00:00Z",
   },
   {
     id: 2,
     email: "test2@example.com",
     name: "testuser2",
-    is_active: false,
-    created_at: "2024-01-02T00:00:00Z",
-    updated_at: "2024-01-02T00:00:00Z",
   },
 ];
 

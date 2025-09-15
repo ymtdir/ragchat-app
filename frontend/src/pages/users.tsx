@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
-import { UserTable } from "@/components/user-table";
-import { UserCreateModal } from "@/components/user-create-modal";
+import { UserTable } from "@/components/user/user-table";
+import { UserCreateModal } from "@/components/user/user-create-modal";
 import type { User } from "@/types/api";
 import { UserService } from "@/services/user-service";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Plus, AlertCircle } from "lucide-react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "./app-sidebar";
+import { AppSidebar } from "@/components/layout/app-sidebar";
 
 export function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);

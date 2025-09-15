@@ -11,7 +11,7 @@ vi.mock("@/components/ui/sidebar", () => ({
 }));
 
 // AppSidebarのモック
-vi.mock("./app-sidebar", () => ({
+vi.mock("@/components/layout/app-sidebar", () => ({
   AppSidebar: () => <div data-testid="app-sidebar">Sidebar</div>,
 }));
 
