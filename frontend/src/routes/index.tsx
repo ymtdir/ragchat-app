@@ -1,7 +1,7 @@
-import { SignInForm } from "@/components/signin-form";
-import { SignUpForm } from "@/components/signup-form";
-import { Dashboard } from "@/components/dashboard";
-import { UsersPage } from "@/components/users";
+import { SignInForm } from "@/pages/signin-form";
+import { SignUpForm } from "@/pages/signup-form";
+import { Dashboard } from "@/pages/dashboard";
+import { UsersPage } from "@/pages/users";
 import { guestRoute, protectedRoute } from "@/utils/auth-loader";
 
 export const createGuestRoutes = () => [

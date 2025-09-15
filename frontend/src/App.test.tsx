@@ -2,8 +2,8 @@ import { render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { expect, test, describe, vi, beforeEach } from "vitest";
 import { BrowserRouter } from "react-router-dom";
-import { SignInForm } from "@/components/signin-form";
-import { SignUpForm } from "@/components/signup-form";
+import { SignInForm } from "@/pages/signin-form";
+import { SignUpForm } from "@/pages/signup-form";
 import App from "./App";
 
 // React Routerのモック

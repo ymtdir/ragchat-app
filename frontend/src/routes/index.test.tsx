@@ -4,19 +4,19 @@ vi.mock("@/utils/auth-loader", () => ({
   protectedRoute: vi.fn(),
 }));
 
-vi.mock("@/components/signin-form", () => ({
+vi.mock("@/pages/signin-form", () => ({
   SignInForm: () => <div data-testid="signin-form">SignInForm</div>,
 }));
 
-vi.mock("@/components/signup-form", () => ({
+vi.mock("@/pages/signup-form", () => ({
   SignUpForm: () => <div data-testid="signup-form">SignUpForm</div>,
 }));
 
-vi.mock("@/components/dashboard", () => ({
+vi.mock("@/pages/dashboard", () => ({
   Dashboard: () => <div data-testid="dashboard">Dashboard</div>,
 }));
 
-vi.mock("@/components/users", () => ({
+vi.mock("@/pages/users", () => ({
   UsersPage: () => <div data-testid="users-page">UsersPage</div>,
 }));
 
