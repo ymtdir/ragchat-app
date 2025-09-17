@@ -71,7 +71,7 @@ class UserResponse(BaseModel):
                 "email": "user@example.com",
                 "created_at": "2024-01-01T10:00:00Z",
                 "updated_at": "2024-01-01T10:00:00Z",
-                "deleted_at": None
+                "deleted_at": None,
             }
         }
 
@@ -162,7 +162,7 @@ class UsersResponse(BaseModel):
                         "email": "user1@example.com",
                         "created_at": "2024-01-01T10:00:00Z",
                         "updated_at": "2024-01-01T10:00:00Z",
-                        "deleted_at": None
+                        "deleted_at": None,
                     },
                     {
                         "id": 2,
@@ -170,7 +170,7 @@ class UsersResponse(BaseModel):
                         "email": "user2@example.com",
                         "created_at": "2024-01-02T10:00:00Z",
                         "updated_at": "2024-01-02T10:00:00Z",
-                        "deleted_at": None
+                        "deleted_at": None,
                     },
                 ],
                 "total": 2,

@@ -57,7 +57,9 @@ class UserService:
             raise
 
     @staticmethod
-    def get_user_by_id(db: Session, user_id: int, include_deleted: bool = False) -> Optional[User]:
+    def get_user_by_id(
+        db: Session, user_id: int, include_deleted: bool = False
+    ) -> Optional[User]:
         """IDでユーザーを取得する
 
         Args:
@@ -74,7 +76,9 @@ class UserService:
         return query.first()
 
     @staticmethod
-    def get_user_by_name(db: Session, name: str, include_deleted: bool = False) -> Optional[User]:
+    def get_user_by_name(
+        db: Session, name: str, include_deleted: bool = False
+    ) -> Optional[User]:
         """ユーザー名でユーザーを取得する
 
         Args:
@@ -91,7 +95,9 @@ class UserService:
         return query.first()
 
     @staticmethod
-    def get_user_by_email(db: Session, email: str, include_deleted: bool = False) -> Optional[User]:
+    def get_user_by_email(
+        db: Session, email: str, include_deleted: bool = False
+    ) -> Optional[User]:
         """メールアドレスでユーザーを取得する
 
         Args:

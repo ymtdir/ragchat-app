@@ -26,7 +26,7 @@ def client():
     TestClientインスタンスを提供するフィクスチャです。
 
     Returns:
-        TestClient: 設定済みのFastAPIアプリ用テストクライアント
+        設定済みのFastAPIアプリ用テストクライアント
 
     使用例:
         def test_endpoint(client):

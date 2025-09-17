@@ -28,7 +28,9 @@ class User(Base):
     email = Column(String(100), index=True, nullable=False)
     password = Column(String(255), nullable=False)
     created_at = Column(DateTime, default=func.now(), nullable=False)
-    updated_at = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
+    updated_at = Column(
+        DateTime, default=func.now(), onupdate=func.now(), nullable=False
+    )
     deleted_at = Column(DateTime, nullable=True, index=True)
 
     @property
@@ -52,6 +54,7 @@ class User(Base):
     def soft_delete(self):
         """論理削除を実行する"""
         from datetime import datetime, timezone
+
         self.deleted_at = datetime.now(timezone.utc)
 
     def __repr__(self):
@@ -61,4 +64,7 @@ class User(Base):
             str: ユーザーの文字列表現
         """
         status = "deleted" if self.is_deleted else "active"
-        return f"<User(id={self.id}, name='{self.name}', email='{self.email}', status='{status}')>"
+        return (
+            f"<User(id={self.id}, name='{self.name}', "
+            f"email='{self.email}', status='{status}')>"
+        )
