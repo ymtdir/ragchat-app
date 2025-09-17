@@ -32,7 +32,7 @@ class UserService:
             User: 作成されたユーザーオブジェクト
 
         Raises:
-            IntegrityError: ユーザー名またはメールアドレスが重複している場合
+            IntegrityError: メールアドレスが重複している場合
         """
         # パスワードをハッシュ化
         hashed_password = pwd_context.hash(user_data.password)
@@ -48,8 +48,12 @@ class UserService:
             db.commit()
             db.refresh(db_user)  # 自動生成されたIDなどを取得
             return db_user
-        except IntegrityError:
+        except IntegrityError as e:
             db.rollback()
+            # メールアドレスの重複エラーの場合のみ再発生
+            if "email" in str(e).lower():
+                raise IntegrityError("メールアドレスが既に使用されています", None, None)
+            # その他のIntegrityErrorは再発生
             raise
 
     @staticmethod
@@ -123,14 +127,16 @@ class UserService:
     def is_name_taken(db: Session, name: str) -> bool:
         """ユーザー名が既に使用されているかチェックする
 
+        Note: ユーザー名の重複は許可するため、常にFalseを返す
+
         Args:
             db: データベースセッション
             name: チェックするユーザー名
 
         Returns:
-            bool: 使用済みの場合True、利用可能な場合False
+            bool: 常にFalse（重複を許可）
         """
-        return UserService.get_user_by_name(db, name) is not None
+        return False  # ユーザー名の重複を許可
 
     @staticmethod
     def is_email_taken(db: Session, email: str) -> bool:
@@ -172,7 +178,7 @@ class UserService:
 
         Raises:
             ValueError: パスワード変更時に現在のパスワードが正しくない場合
-            IntegrityError: ユーザー名またはメールアドレスが重複している場合
+            IntegrityError: メールアドレスが重複している場合
         """
         # ユーザーの存在確認
         user = UserService.get_user_by_id(db, user_id)
@@ -192,10 +198,8 @@ class UserService:
             # 新しいパスワードをハッシュ化
             user.password = pwd_context.hash(user_data.new_password)
 
-        # 名前の更新（重複チェック付き）
+        # 名前の更新（重複チェックなし - ユーザー名の重複を許可）
         if user_data.name is not None and user_data.name != user.name:
-            if UserService.is_name_taken(db, user_data.name):
-                raise IntegrityError("ユーザー名が既に使用されています", None, None)
             user.name = user_data.name
 
         # メールアドレスの更新（重複チェック付き）
@@ -208,8 +212,12 @@ class UserService:
             db.commit()
             db.refresh(user)
             return user
-        except IntegrityError:
+        except IntegrityError as e:
             db.rollback()
+            # メールアドレスの重複エラーの場合のみ再発生
+            if "email" in str(e).lower():
+                raise IntegrityError("メールアドレスが既に使用されています", None, None)
+            # その他のIntegrityErrorは再発生
             raise
 
     @staticmethod
