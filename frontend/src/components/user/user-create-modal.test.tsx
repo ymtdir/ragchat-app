@@ -10,6 +10,9 @@ const mockUser: User = {
   id: 1,
   name: "新しいユーザー",
   email: "new@example.com",
+  created_at: "2024-01-01T10:00:00Z",
+  updated_at: "2024-01-01T10:00:00Z",
+  deleted_at: null,
 };
 
 const defaultProps = {

@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, act } from "@testing-library/react";
 import { expect, test, describe, vi, beforeEach } from "vitest";
 import { BrowserRouter } from "react-router-dom";
 import { UsersPage } from "./users";
@@ -12,11 +12,17 @@ const mockUsers: User[] = [
     id: 1,
     name: "テストユーザー1",
     email: "test1@example.com",
+    created_at: "2024-01-01T10:00:00Z",
+    updated_at: "2024-01-01T10:00:00Z",
+    deleted_at: null,
   },
   {
     id: 2,
     name: "テストユーザー2",
     email: "test2@example.com",
+    created_at: "2024-01-02T10:00:00Z",
+    updated_at: "2024-01-02T10:00:00Z",
+    deleted_at: null,
   },
 ];
 
@@ -57,10 +63,24 @@ describe("UsersPage", () => {
   });
 
   describe("レンダリング", () => {
-    test("ユーザーページが正しく表示される", () => {
-      renderWithRouter(<UsersPage />);
-      expect(screen.getAllByText("ユーザー管理")).toHaveLength(2); // ヘッダーとメインコンテンツ
-      expect(screen.getByTestId("user-table")).toBeInTheDocument();
+    test("ユーザーページが正しく表示される", async () => {
+      // fetchをモックして成功レスポンスを返す
+      (fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockUsers,
+      } as Response);
+
+      await act(async () => {
+        renderWithRouter(<UsersPage />);
+      });
+
+      // 「ユーザー管理」が2箇所（ヘッダーとメインコンテンツ）に表示されることを確認
+      expect(screen.getAllByText("ユーザー管理")).toHaveLength(2);
+
+      // ユーザーテーブルが表示されるまで待つ
+      await waitFor(() => {
+        expect(screen.getByTestId("user-table")).toBeInTheDocument();
+      });
     });
   });
 

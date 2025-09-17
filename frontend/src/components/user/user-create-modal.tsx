@@ -124,9 +124,18 @@ export function UserCreateModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent
+        className="max-w-2xl"
+        aria-describedby="user-create-description"
+      >
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">ユーザー作成</DialogTitle>
+          <p
+            id="user-create-description"
+            className="text-sm text-muted-foreground"
+          >
+            新しいユーザーの情報を入力してください。
+          </p>
         </DialogHeader>
         <div className="flex w-full flex-col gap-6">
           {error && (

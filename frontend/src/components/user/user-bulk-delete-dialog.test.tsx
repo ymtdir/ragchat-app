@@ -4,9 +4,30 @@ import { UserBulkDeleteDialog } from "./user-bulk-delete-dialog";
 import type { User } from "@/types/api";
 
 const mockUsers: User[] = [
-  { id: 1, name: "テストユーザー1", email: "test1@example.com" },
-  { id: 2, name: "テストユーザー2", email: "test2@example.com" },
-  { id: 3, name: "テストユーザー3", email: "test3@example.com" },
+  {
+    id: 1,
+    name: "テストユーザー1",
+    email: "test1@example.com",
+    created_at: "2024-01-01T10:00:00Z",
+    updated_at: "2024-01-01T10:00:00Z",
+    deleted_at: null,
+  },
+  {
+    id: 2,
+    name: "テストユーザー2",
+    email: "test2@example.com",
+    created_at: "2024-01-02T10:00:00Z",
+    updated_at: "2024-01-02T10:00:00Z",
+    deleted_at: null,
+  },
+  {
+    id: 3,
+    name: "テストユーザー3",
+    email: "test3@example.com",
+    created_at: "2024-01-03T10:00:00Z",
+    updated_at: "2024-01-03T10:00:00Z",
+    deleted_at: null,
+  },
 ];
 
 const defaultProps = {

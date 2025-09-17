@@ -41,20 +41,20 @@ export const UserHelpers = {
    */
   getDeletedAtFormatted: (user: User): string | null => {
     if (!user.deleted_at) return null;
-    return new Date(user.deleted_at).toLocaleString('ja-JP');
+    return new Date(user.deleted_at).toLocaleString("ja-JP");
   },
 
   /**
    * 作成日時を日本語フォーマットで取得
    */
   getCreatedAtFormatted: (user: User): string => {
-    return new Date(user.created_at).toLocaleString('ja-JP');
+    return new Date(user.created_at).toLocaleString("ja-JP");
   },
 
   /**
    * 更新日時を日本語フォーマットで取得
    */
   getUpdatedAtFormatted: (user: User): string => {
-    return new Date(user.updated_at).toLocaleString('ja-JP');
+    return new Date(user.updated_at).toLocaleString("ja-JP");
   },
 };
