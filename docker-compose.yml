@@ -14,6 +14,9 @@ services:
     volumes:
       - ./backend:/app
       - ./vector_db:/app/vector_db
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - TZ=Asia/Tokyo
     restart: unless-stopped
 
   frontend:
@@ -27,6 +30,9 @@ services:
     volumes:
       - /app/node_modules
       - ./frontend:/app
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - TZ=Asia/Tokyo
     restart: unless-stopped
 
   db:
@@ -37,6 +43,9 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - TZ=Asia/Tokyo
     restart: unless-stopped
 
   pgadmin:
@@ -49,6 +58,9 @@ services:
       - db
     volumes:
       - pgadmin_data:/var/lib/pgadmin
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - TZ=Asia/Tokyo
     restart: unless-stopped
 
 volumes:

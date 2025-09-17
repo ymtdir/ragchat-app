@@ -7,6 +7,9 @@ const mockUser: User = {
   id: 1,
   name: "テストユーザー",
   email: "test@example.com",
+  created_at: "",
+  updated_at: "",
+  deleted_at: null,
 };
 
 const defaultProps = {

@@ -3,6 +3,8 @@
 リクエスト/レスポンスのバリデーションとシリアライゼーションを行います。
 """
 
+from datetime import datetime
+from typing import Optional
 from pydantic import BaseModel, Field, EmailStr
 
 
@@ -44,11 +46,17 @@ class UserResponse(BaseModel):
         id: ユーザーID
         name: ユーザー名
         email: メールアドレス
+        created_at: 作成日時
+        updated_at: 更新日時
+        deleted_at: 削除日時（論理削除用）
     """
 
     id: int
     name: str
     email: str
+    created_at: datetime
+    updated_at: datetime
+    deleted_at: Optional[datetime] = None
 
     class Config:
         """設定クラス"""
@@ -57,7 +65,14 @@ class UserResponse(BaseModel):
 
         # JSON Schema用のサンプルデータ
         json_schema_extra = {
-            "example": {"id": 1, "name": "user", "email": "user@example.com"}
+            "example": {
+                "id": 1,
+                "name": "user",
+                "email": "user@example.com",
+                "created_at": "2024-01-01T10:00:00Z",
+                "updated_at": "2024-01-01T10:00:00Z",
+                "deleted_at": None
+            }
         }
 
 
@@ -141,8 +156,22 @@ class UsersResponse(BaseModel):
         json_schema_extra = {
             "example": {
                 "users": [
-                    {"id": 1, "name": "user1", "email": "user1@example.com"},
-                    {"id": 2, "name": "user2", "email": "user2@example.com"},
+                    {
+                        "id": 1,
+                        "name": "user1",
+                        "email": "user1@example.com",
+                        "created_at": "2024-01-01T10:00:00Z",
+                        "updated_at": "2024-01-01T10:00:00Z",
+                        "deleted_at": None
+                    },
+                    {
+                        "id": 2,
+                        "name": "user2",
+                        "email": "user2@example.com",
+                        "created_at": "2024-01-02T10:00:00Z",
+                        "updated_at": "2024-01-02T10:00:00Z",
+                        "deleted_at": None
+                    },
                 ],
                 "total": 2,
             }
