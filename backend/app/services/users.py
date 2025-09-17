@@ -32,7 +32,7 @@ class UserService:
             User: 作成されたユーザーオブジェクト
 
         Raises:
-            IntegrityError: ユーザー名またはメールアドレスが重複している場合
+            IntegrityError: メールアドレスが重複している場合
         """
         # パスワードをハッシュ化
         hashed_password = pwd_context.hash(user_data.password)
@@ -48,73 +48,101 @@ class UserService:
             db.commit()
             db.refresh(db_user)  # 自動生成されたIDなどを取得
             return db_user
-        except IntegrityError:
+        except IntegrityError as e:
             db.rollback()
+            # メールアドレスの重複エラーの場合のみ再発生
+            if "email" in str(e).lower():
+                raise IntegrityError("メールアドレスが既に使用されています", None, None)
+            # その他のIntegrityErrorは再発生
             raise
 
     @staticmethod
-    def get_user_by_id(db: Session, user_id: int) -> Optional[User]:
+    def get_user_by_id(
+        db: Session, user_id: int, include_deleted: bool = False
+    ) -> Optional[User]:
         """IDでユーザーを取得する
 
         Args:
             db: データベースセッション
             user_id: ユーザーID
+            include_deleted: 削除済みユーザーも含めるかどうか
 
         Returns:
             Optional[User]: ユーザーオブジェクト（存在しない場合はNone）
         """
-        return db.query(User).filter(User.id == user_id).first()
+        query = db.query(User).filter(User.id == user_id)
+        if not include_deleted:
+            query = query.filter(User.deleted_at.is_(None))
+        return query.first()
 
     @staticmethod
-    def get_user_by_name(db: Session, name: str) -> Optional[User]:
+    def get_user_by_name(
+        db: Session, name: str, include_deleted: bool = False
+    ) -> Optional[User]:
         """ユーザー名でユーザーを取得する
 
         Args:
             db: データベースセッション
             name: ユーザー名
+            include_deleted: 削除済みユーザーも含めるかどうか
 
         Returns:
             Optional[User]: ユーザーオブジェクト（存在しない場合はNone）
         """
-        return db.query(User).filter(User.name == name).first()
+        query = db.query(User).filter(User.name == name)
+        if not include_deleted:
+            query = query.filter(User.deleted_at.is_(None))
+        return query.first()
 
     @staticmethod
-    def get_user_by_email(db: Session, email: str) -> Optional[User]:
+    def get_user_by_email(
+        db: Session, email: str, include_deleted: bool = False
+    ) -> Optional[User]:
         """メールアドレスでユーザーを取得する
 
         Args:
             db: データベースセッション
             email: メールアドレス
+            include_deleted: 削除済みユーザーも含めるかどうか
 
         Returns:
             Optional[User]: ユーザーオブジェクト（存在しない場合はNone）
         """
-        return db.query(User).filter(User.email == email).first()
+        query = db.query(User).filter(User.email == email)
+        if not include_deleted:
+            query = query.filter(User.deleted_at.is_(None))
+        return query.first()
 
     @staticmethod
-    def get_all_users(db: Session) -> list[User]:
+    def get_all_users(db: Session, include_deleted: bool = False) -> list[User]:
         """全ユーザーを取得する
 
         Args:
             db: データベースセッション
+            include_deleted: 削除済みユーザーも含めるかどうか
 
         Returns:
-            list[User]: 全ユーザーのリスト
+            list[User]: ユーザーのリスト（論理削除されていないもの）
         """
-        return db.query(User).all()
+        query = db.query(User)
+        if not include_deleted:
+            query = query.filter(User.deleted_at.is_(None))
+        return query.all()
 
     @staticmethod
     def is_name_taken(db: Session, name: str) -> bool:
         """ユーザー名が既に使用されているかチェックする
+
+        Note: ユーザー名の重複は許可するため、常にFalseを返す
 
         Args:
             db: データベースセッション
             name: チェックするユーザー名
 
         Returns:
-            bool: 使用済みの場合True、利用可能な場合False
+            bool: 常にFalse（重複を許可）
         """
-        return UserService.get_user_by_name(db, name) is not None
+        return False  # ユーザー名の重複を許可
 
     @staticmethod
     def is_email_taken(db: Session, email: str) -> bool:
@@ -156,7 +184,7 @@ class UserService:
 
         Raises:
             ValueError: パスワード変更時に現在のパスワードが正しくない場合
-            IntegrityError: ユーザー名またはメールアドレスが重複している場合
+            IntegrityError: メールアドレスが重複している場合
         """
         # ユーザーの存在確認
         user = UserService.get_user_by_id(db, user_id)
@@ -176,10 +204,8 @@ class UserService:
             # 新しいパスワードをハッシュ化
             user.password = pwd_context.hash(user_data.new_password)
 
-        # 名前の更新（重複チェック付き）
+        # 名前の更新（重複チェックなし - ユーザー名の重複を許可）
         if user_data.name is not None and user_data.name != user.name:
-            if UserService.is_name_taken(db, user_data.name):
-                raise IntegrityError("ユーザー名が既に使用されています", None, None)
             user.name = user_data.name
 
         # メールアドレスの更新（重複チェック付き）
@@ -192,13 +218,17 @@ class UserService:
             db.commit()
             db.refresh(user)
             return user
-        except IntegrityError:
+        except IntegrityError as e:
             db.rollback()
+            # メールアドレスの重複エラーの場合のみ再発生
+            if "email" in str(e).lower():
+                raise IntegrityError("メールアドレスが既に使用されています", None, None)
+            # その他のIntegrityErrorは再発生
             raise
 
     @staticmethod
-    def delete_user_by_id(db: Session, user_id: int) -> bool:
-        """指定されたIDのユーザーを削除する
+    def soft_delete_user_by_id(db: Session, user_id: int) -> bool:
+        """指定されたIDのユーザーを論理削除する
 
         Args:
             db: データベースセッション
@@ -207,7 +237,30 @@ class UserService:
         Returns:
             bool: 削除成功の場合True、ユーザーが存在しない場合False
         """
-        user = UserService.get_user_by_id(db, user_id)
+        user = UserService.get_user_by_id(db, user_id, include_deleted=False)
+        if not user:
+            return False
+
+        try:
+            user.soft_delete()
+            db.commit()
+            return True
+        except Exception as e:
+            db.rollback()
+            raise e
+
+    @staticmethod
+    def hard_delete_user_by_id(db: Session, user_id: int) -> bool:
+        """指定されたIDのユーザーを物理削除する
+
+        Args:
+            db: データベースセッション
+            user_id: 削除対象のユーザーID
+
+        Returns:
+            bool: 削除成功の場合True、ユーザーが存在しない場合False
+        """
+        user = UserService.get_user_by_id(db, user_id, include_deleted=True)
         if not user:
             return False
 
@@ -220,8 +273,31 @@ class UserService:
             raise e
 
     @staticmethod
-    def delete_all_users(db: Session) -> int:
-        """全ユーザーを削除する
+    def restore_user_by_id(db: Session, user_id: int) -> bool:
+        """指定されたIDのユーザーを復元する
+
+        Args:
+            db: データベースセッション
+            user_id: 復元対象のユーザーID
+
+        Returns:
+            bool: 復元成功の場合True、ユーザーが存在しない場合False
+        """
+        user = UserService.get_user_by_id(db, user_id, include_deleted=True)
+        if not user or not user.is_deleted:
+            return False
+
+        try:
+            user.deleted_at = None
+            db.commit()
+            return True
+        except Exception as e:
+            db.rollback()
+            raise e
+
+    @staticmethod
+    def soft_delete_all_users(db: Session) -> int:
+        """全ユーザーを論理削除する
 
         Args:
             db: データベースセッション
@@ -233,15 +309,32 @@ class UserService:
             Exception: 削除処理中にエラーが発生した場合
         """
         try:
-            # 全ユーザーを取得して削除
-            users = db.query(User).all()
+            # アクティブな全ユーザーを取得して論理削除
+            users = UserService.get_all_users(db, include_deleted=False)
             deleted_count = len(users)
 
             for user in users:
-                db.delete(user)
+                user.soft_delete()
 
             db.commit()
             return deleted_count
         except Exception:
             db.rollback()
             raise
+
+    # 下位互換性のためのエイリアス
+    @staticmethod
+    def delete_user_by_id(db: Session, user_id: int) -> bool:
+        """指定されたIDのユーザーを削除する（論理削除）
+
+        Note: 下位互換性のために残されています。soft_delete_user_by_idの使用を推奨します。
+        """
+        return UserService.soft_delete_user_by_id(db, user_id)
+
+    @staticmethod
+    def delete_all_users(db: Session) -> int:
+        """全ユーザーを削除する（論理削除）
+
+        Note: 下位互換性のために残されています。soft_delete_all_usersの使用を推奨します。
+        """
+        return UserService.soft_delete_all_users(db)

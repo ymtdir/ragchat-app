@@ -210,9 +210,18 @@ export function UserEditModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent
+        className="max-w-2xl"
+        aria-describedby="user-edit-description"
+      >
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">ユーザー編集</DialogTitle>
+          <p
+            id="user-edit-description"
+            className="text-sm text-muted-foreground"
+          >
+            ユーザーの情報を編集できます。
+          </p>
         </DialogHeader>
         <div className="flex w-full flex-col gap-6">
           {error && (

@@ -8,11 +8,17 @@ const mockUsers: User[] = [
     id: 1,
     name: "テストユーザー1",
     email: "test1@example.com",
+    created_at: "2024-01-01T10:00:00Z",
+    updated_at: "2024-01-01T10:00:00Z",
+    deleted_at: null,
   },
   {
     id: 2,
     name: "テストユーザー2",
     email: "test2@example.com",
+    created_at: "2024-01-02T10:00:00Z",
+    updated_at: "2024-01-02T10:00:00Z",
+    deleted_at: null,
   },
 ];
 

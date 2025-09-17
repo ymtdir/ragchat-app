@@ -19,6 +19,7 @@
 
 from unittest.mock import MagicMock, patch
 from fastapi.testclient import TestClient
+from datetime import datetime
 
 from app.main import app
 from app.config.database import get_db
@@ -211,7 +212,12 @@ class TestAuthService:
 
         # モックユーザーオブジェクト
         mock_user = User(
-            id=1, name="testuser", email="test@example.com", password="hashed_password"
+            created_at=datetime.now(),
+            updated_at=datetime.now(),
+            id=1,
+            name="testuser",
+            email="test@example.com",
+            password="hashed_password",
         )
 
         # AuthService.authenticate_userメソッド全体をモック化
@@ -336,7 +342,12 @@ class TestAuthIntegration:
 
         # モックユーザーオブジェクト
         mock_user = User(
-            id=1, name="testuser", email="test@example.com", password="hashed_password"
+            created_at=datetime.now(),
+            updated_at=datetime.now(),
+            id=1,
+            name="testuser",
+            email="test@example.com",
+            password="hashed_password",
         )
 
         # サービスメソッドをモック化
