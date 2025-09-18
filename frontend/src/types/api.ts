@@ -20,6 +20,30 @@ export type UsersResponse = {
   total: number;
 };
 
+export type Group = {
+  id: number;
+  name: string;
+  description: string | null;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+};
+
+export type GroupCreate = {
+  name: string;
+  description?: string;
+};
+
+export type GroupUpdate = {
+  name?: string;
+  description?: string;
+};
+
+export type GroupsResponse = {
+  groups: Group[];
+  total: number;
+};
+
 // ユーザーのヘルパー関数
 export const UserHelpers = {
   /**
@@ -56,5 +80,44 @@ export const UserHelpers = {
    */
   getUpdatedAtFormatted: (user: User): string => {
     return new Date(user.updated_at).toLocaleString("ja-JP");
+  },
+};
+
+// グループのヘルパー関数
+export const GroupHelpers = {
+  /**
+   * グループが削除されているかどうかを確認
+   */
+  isDeleted: (group: Group): boolean => {
+    return group.deleted_at !== null;
+  },
+
+  /**
+   * グループがアクティブかどうかを確認
+   */
+  isActive: (group: Group): boolean => {
+    return group.deleted_at === null;
+  },
+
+  /**
+   * 削除日時を日本語フォーマットで取得
+   */
+  getDeletedAtFormatted: (group: Group): string | null => {
+    if (!group.deleted_at) return null;
+    return new Date(group.deleted_at).toLocaleString("ja-JP");
+  },
+
+  /**
+   * 作成日時を日本語フォーマットで取得
+   */
+  getCreatedAtFormatted: (group: Group): string => {
+    return new Date(group.created_at).toLocaleString("ja-JP");
+  },
+
+  /**
+   * 更新日時を日本語フォーマットで取得
+   */
+  getUpdatedAtFormatted: (group: Group): string => {
+    return new Date(group.updated_at).toLocaleString("ja-JP");
   },
 };

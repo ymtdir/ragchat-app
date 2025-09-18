@@ -1,6 +1,7 @@
 import {
   LayoutDashboard,
   Users,
+  UsersRound,
   Settings,
   LogOut,
   FileText,
@@ -31,6 +32,11 @@ const items = [
     title: "Users",
     url: "/users",
     icon: Users,
+  },
+  {
+    title: "Groups",
+    url: "/groups",
+    icon: UsersRound,
   },
   {
     title: "Documents",
