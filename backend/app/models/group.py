@@ -62,7 +62,4 @@ class Group(Base):
             str: グループの文字列表現
         """
         status = "deleted" if self.is_deleted else "active"
-        return (
-            f"<Group(id={self.id}, name='{self.name}', "
-            f"status='{status}')>"
-        )
+        return f"<Group(id={self.id}, name='{self.name}', " f"status='{status}')>"
