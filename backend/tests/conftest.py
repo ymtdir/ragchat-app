@@ -57,6 +57,7 @@ def db(db_session):
 @pytest.fixture(scope="function")
 def client(db_session):
     """FastAPIアプリケーション用のテストクライアント（共有セッション）"""
+
     def override_get_db():
         try:
             yield db_session
