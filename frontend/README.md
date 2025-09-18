@@ -141,19 +141,24 @@ npx prettier --write src/components/Button.tsx
 frontend/
 ├── src/
 │   ├── components/      # UIコンポーネント
-│   ├── hooks/          # カスタムフック
-│   ├── services/       # API通信
-│   ├── types/          # 型定義
-│   ├── utils/          # ユーティリティ関数
-│   └── routes/         # ルーティング設定
-├── public/             # 静的ファイル
-├── coverage/           # テストカバレッジ（自動生成）
-├── dist/               # ビルド出力（自動生成）
-├── eslint.config.js    # ESLint設定
-├── package.json        # 依存関係とスクリプト
-├── tsconfig.json       # TypeScript設定
-├── vite.config.ts      # Vite設定
-└── README.md           # このファイル
+│   │   ├── ui/          # 基本UIコンポーネント
+│   │   ├── layout/      # レイアウトコンポーネント
+│   │   ├── theme/       # テーマ関連コンポーネント
+│   │   └── user/        # ユーザー関連コンポーネント
+│   ├── pages/           # ページコンポーネント
+│   ├── hooks/           # カスタムフック
+│   ├── services/        # API通信
+│   ├── types/           # 型定義
+│   ├── utils/           # ユーティリティ関数
+│   └── routes/          # ルーティング設定
+├── public/              # 静的ファイル
+├── coverage/            # テストカバレッジ（自動生成）
+├── dist/                # ビルド出力（自動生成）
+├── eslint.config.js     # ESLint設定
+├── package.json         # 依存関係とスクリプト
+├── tsconfig.json        # TypeScript設定
+├── vite.config.ts       # Vite設定
+└── README.md            # このファイル
 ```
 
 ## 🔧 開発 Tips

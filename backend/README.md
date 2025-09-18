@@ -176,14 +176,34 @@ backend/
 ├── app/
 │   ├── config/          # 設定管理
 │   │   ├── __init__.py
+│   │   ├── database.py
+│   │   ├── logging.py
 │   │   └── settings.py
+│   ├── models/          # データベースモデル
+│   │   ├── __init__.py
+│   │   ├── user.py
+│   │   └── group.py
 │   ├── schemas/         # APIスキーマ
 │   │   ├── __init__.py
-│   │   └── vector.py
+│   │   ├── auth.py
+│   │   ├── users.py
+│   │   ├── groups.py
+│   │   └── documents.py
 │   ├── services/        # ビジネスロジック
 │   │   ├── __init__.py
-│   │   └── vector.py
+│   │   ├── auth.py
+│   │   ├── users.py
+│   │   ├── groups.py
+│   │   └── documents.py
+│   ├── routers/         # APIエンドポイント
+│   │   ├── __init__.py
+│   │   ├── health.py
+│   │   ├── auth.py
+│   │   ├── users.py
+│   │   ├── groups.py
+│   │   └── documents.py
 │   └── main.py          # FastAPIアプリケーション
+├── tests/               # テストコード
 ├── vector_db/           # ChromaDBデータ（自動生成）
 ├── .env                 # 環境変数（.env.exampleからコピー）
 ├── .env.example         # 環境変数のサンプル

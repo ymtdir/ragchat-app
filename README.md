@@ -210,6 +210,11 @@ ragchat-app/
 ├── frontend/               # React フロントエンド
 │   ├── src/
 │   │   ├── components/    # UI コンポーネント
+│   │   │   ├── ui/        # 基本UIコンポーネント
+│   │   │   ├── layout/    # レイアウトコンポーネント
+│   │   │   ├── theme/     # テーマ関連コンポーネント
+│   │   │   └── user/      # ユーザー関連コンポーネント
+│   │   ├── pages/         # ページコンポーネント
 │   │   ├── hooks/         # カスタムフック
 │   │   ├── services/      # API 通信
 │   │   ├── types/         # 型定義
@@ -280,10 +285,11 @@ docker compose up -d
 - ✅ FastAPI + PostgreSQL + ChromaDB バックエンド
 - ✅ React + TypeScript フロントエンド
 - ✅ ユーザー認証・管理機能
+- ✅ グループ管理機能（CRUD 操作）
 - ✅ ベクトル検索機能（ChromaDB）
 - ✅ CI/CD パイプライン（GitHub Actions）
 - ✅ コード品質管理（black、Prettier、ESLint、flake8）
 - ✅ テスト環境（pytest、Vitest）
 - ✅ コードカバレッジ（Codecov）
 
-**次のステップ:** RAG チャット機能の実装
+**次のステップ:** フロントエンドグループ一覧ページの実装
