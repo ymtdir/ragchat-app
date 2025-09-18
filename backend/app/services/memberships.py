@@ -3,28 +3,24 @@
 メンバーシップに関するビジネスロジックを提供します。
 """
 
-from typing import List, Optional, Dict, Any
+from typing import List, Dict, Any
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy import and_
 
 from ..models.membership import Membership
 from ..models.user import User
 from ..models.group import Group
-from ..schemas.memberships import (
-    MembershipCreate,
-    BulkMembershipCreate,
-    BulkMembershipDelete
-)
+
+# from ..schemas.memberships import (
+#     MembershipCreate,
+# )
 
 
 class MembershipService:
     """メンバーシップサービスクラス"""
 
     @staticmethod
-    def add_member_to_group(
-        db: Session, group_id: int, user_id: int
-    ) -> Membership:
+    def add_member_to_group(db: Session, group_id: int, user_id: int) -> Membership:
         """グループにメンバーを追加する
 
         Args:
@@ -40,26 +36,34 @@ class MembershipService:
             IntegrityError: 既にメンバーの場合
         """
         # グループとユーザーの存在確認
-        group = db.query(Group).filter(
-            and_(Group.id == group_id, Group.deleted_at.is_(None))
-        ).first()
+        group = (
+            db.query(Group)
+            .filter(and_(Group.id == group_id, Group.deleted_at.is_(None)))
+            .first()
+        )
         if not group:
             raise ValueError(f"ID {group_id} のグループが見つかりません")
 
-        user = db.query(User).filter(
-            and_(User.id == user_id, User.deleted_at.is_(None))
-        ).first()
+        user = (
+            db.query(User)
+            .filter(and_(User.id == user_id, User.deleted_at.is_(None)))
+            .first()
+        )
         if not user:
             raise ValueError(f"ID {user_id} のユーザーが見つかりません")
 
         # 既存メンバーシップの確認
-        existing = db.query(Membership).filter(
-            and_(
-                Membership.user_id == user_id,
-                Membership.group_id == group_id,
-                Membership.deleted_at.is_(None)
+        existing = (
+            db.query(Membership)
+            .filter(
+                and_(
+                    Membership.user_id == user_id,
+                    Membership.group_id == group_id,
+                    Membership.deleted_at.is_(None),
+                )
             )
-        ).first()
+            .first()
+        )
 
         if existing:
             raise ValueError("ユーザーは既にこのグループのメンバーです")
@@ -73,9 +77,7 @@ class MembershipService:
         return membership
 
     @staticmethod
-    def remove_member_from_group(
-        db: Session, group_id: int, user_id: int
-    ) -> bool:
+    def remove_member_from_group(db: Session, group_id: int, user_id: int) -> bool:
         """グループからメンバーを削除する
 
         Args:
@@ -89,13 +91,17 @@ class MembershipService:
         Raises:
             ValueError: メンバーシップが存在しない場合
         """
-        membership = db.query(Membership).filter(
-            and_(
-                Membership.user_id == user_id,
-                Membership.group_id == group_id,
-                Membership.deleted_at.is_(None)
+        membership = (
+            db.query(Membership)
+            .filter(
+                and_(
+                    Membership.user_id == user_id,
+                    Membership.group_id == group_id,
+                    Membership.deleted_at.is_(None),
+                )
             )
-        ).first()
+            .first()
+        )
 
         if not membership:
             raise ValueError("指定されたメンバーシップが見つかりません")
@@ -118,9 +124,7 @@ class MembershipService:
         Returns:
             List[Dict[str, Any]]: メンバー一覧
         """
-        query = db.query(Membership).join(User).filter(
-            Membership.group_id == group_id
-        )
+        query = db.query(Membership).join(User).filter(Membership.group_id == group_id)
 
         if not include_deleted:
             query = query.filter(Membership.deleted_at.is_(None))
@@ -135,7 +139,7 @@ class MembershipService:
                 "user_name": membership.user.name,
                 "user_email": membership.user.email,
                 "joined_at": membership.created_at,
-                "is_active": membership.is_active
+                "is_active": membership.is_active,
             }
             members.append(member_data)
 
@@ -155,9 +159,7 @@ class MembershipService:
         Returns:
             List[Dict[str, Any]]: 所属グループ一覧
         """
-        query = db.query(Membership).join(Group).filter(
-            Membership.user_id == user_id
-        )
+        query = db.query(Membership).join(Group).filter(Membership.user_id == user_id)
 
         if not include_deleted:
             query = query.filter(Membership.deleted_at.is_(None))
@@ -172,7 +174,7 @@ class MembershipService:
                 "group_name": membership.group.name,
                 "group_description": membership.group.description,
                 "joined_at": membership.created_at,
-                "is_active": membership.is_active
+                "is_active": membership.is_active,
             }
             groups.append(group_data)
 
@@ -193,9 +195,11 @@ class MembershipService:
             Dict[str, Any]: 処理結果
         """
         # グループの存在確認
-        group = db.query(Group).filter(
-            and_(Group.id == group_id, Group.deleted_at.is_(None))
-        ).first()
+        group = (
+            db.query(Group)
+            .filter(and_(Group.id == group_id, Group.deleted_at.is_(None)))
+            .first()
+        )
         if not group:
             raise ValueError(f"ID {group_id} のグループが見つかりません")
 
@@ -206,21 +210,27 @@ class MembershipService:
         for user_id in user_ids:
             try:
                 # ユーザーの存在確認
-                user = db.query(User).filter(
-                    and_(User.id == user_id, User.deleted_at.is_(None))
-                ).first()
+                user = (
+                    db.query(User)
+                    .filter(and_(User.id == user_id, User.deleted_at.is_(None)))
+                    .first()
+                )
                 if not user:
                     errors.append(f"ID {user_id} のユーザーが見つかりません")
                     continue
 
                 # 既存メンバーシップの確認
-                existing = db.query(Membership).filter(
-                    and_(
-                        Membership.user_id == user_id,
-                        Membership.group_id == group_id,
-                        Membership.deleted_at.is_(None)
+                existing = (
+                    db.query(Membership)
+                    .filter(
+                        and_(
+                            Membership.user_id == user_id,
+                            Membership.group_id == group_id,
+                            Membership.deleted_at.is_(None),
+                        )
                     )
-                ).first()
+                    .first()
+                )
 
                 if existing:
                     already_member_count += 1
@@ -239,7 +249,7 @@ class MembershipService:
         return {
             "added_count": added_count,
             "already_member_count": already_member_count,
-            "errors": errors
+            "errors": errors,
         }
 
     @staticmethod
@@ -262,13 +272,17 @@ class MembershipService:
 
         for user_id in user_ids:
             try:
-                membership = db.query(Membership).filter(
-                    and_(
-                        Membership.user_id == user_id,
-                        Membership.group_id == group_id,
-                        Membership.deleted_at.is_(None)
+                membership = (
+                    db.query(Membership)
+                    .filter(
+                        and_(
+                            Membership.user_id == user_id,
+                            Membership.group_id == group_id,
+                            Membership.deleted_at.is_(None),
+                        )
                     )
-                ).first()
+                    .first()
+                )
 
                 if not membership:
                     not_member_count += 1
@@ -285,7 +299,7 @@ class MembershipService:
         return {
             "removed_count": removed_count,
             "not_member_count": not_member_count,
-            "errors": errors
+            "errors": errors,
         }
 
     @staticmethod
@@ -300,12 +314,16 @@ class MembershipService:
         Returns:
             bool: メンバーの場合True
         """
-        membership = db.query(Membership).filter(
-            and_(
-                Membership.user_id == user_id,
-                Membership.group_id == group_id,
-                Membership.deleted_at.is_(None)
+        membership = (
+            db.query(Membership)
+            .filter(
+                and_(
+                    Membership.user_id == user_id,
+                    Membership.group_id == group_id,
+                    Membership.deleted_at.is_(None),
+                )
             )
-        ).first()
+            .first()
+        )
 
         return membership is not None

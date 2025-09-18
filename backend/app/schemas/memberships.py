@@ -24,6 +24,7 @@ class MembershipCreate(MembershipBase):
             "group_id": 2
         }
     """
+
     pass
 
 
@@ -55,6 +56,7 @@ class MembershipUpdate(BaseModel):
 
     現在は特に更新可能なフィールドがありませんが、将来の拡張のために定義
     """
+
     pass
 
 
@@ -85,7 +87,9 @@ class BulkMembershipCreate(BaseModel):
     """一括メンバーシップ作成用スキーマ"""
 
     group_id: int = Field(..., description="グループID")
-    user_ids: List[int] = Field(..., description="追加するユーザーIDのリスト", min_length=1)
+    user_ids: List[int] = Field(
+        ..., description="追加するユーザーIDのリスト", min_length=1
+    )
 
 
 class BulkMembershipResponse(BaseModel):
@@ -102,7 +106,9 @@ class BulkMembershipDelete(BaseModel):
     """一括メンバーシップ削除用スキーマ"""
 
     group_id: int = Field(..., description="グループID")
-    user_ids: List[int] = Field(..., description="削除するユーザーIDのリスト", min_length=1)
+    user_ids: List[int] = Field(
+        ..., description="削除するユーザーIDのリスト", min_length=1
+    )
 
 
 class BulkMembershipDeleteResponse(BaseModel):

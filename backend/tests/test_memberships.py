@@ -9,7 +9,8 @@
 2. 特定のテストメソッドだけ実行:
     python -m pytest -v \
         tests/test_memberships.py::TestMemberships::test_add_member_to_group_success
-    python -m pytest -v tests/test_memberships.py::TestMemberships::test_get_group_members
+    python -m pytest -v \
+        tests/test_memberships.py::TestMemberships::test_get_group_members
 
 3. カバレッジレポート生成:
     coverage run -m pytest tests/
@@ -17,7 +18,6 @@
     coverage html
 """
 
-import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 

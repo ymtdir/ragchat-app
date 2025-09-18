@@ -42,7 +42,9 @@ class Membership(Base):
 
     # ユニーク制約（同じユーザーが同じグループに重複して所属できない）
     __table_args__ = (
-        UniqueConstraint('user_id', 'group_id', 'deleted_at', name='unique_active_membership'),
+        UniqueConstraint(
+            "user_id", "group_id", "deleted_at", name="unique_active_membership"
+        ),
     )
 
     @property

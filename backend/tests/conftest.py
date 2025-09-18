@@ -30,59 +30,43 @@ engine = create_engine(
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
-@pytest.fixture
-def db():
-    """テスト用データベースセッション
-
-    各テスト実行前にテーブルを作成し、実行後にクリーンアップします。
-
-    Returns:
-        SQLAlchemy セッション
-    """
+@pytest.fixture(scope="function")
+def db_session():
+    """テスト用データベースセッション（トランザクション管理）"""
     # テーブル作成
     Base.metadata.create_all(bind=engine)
 
-    db = TestingSessionLocal()
+    connection = engine.connect()
+    transaction = connection.begin()
+    session = TestingSessionLocal(bind=connection)
+
     try:
-        yield db
+        yield session
     finally:
-        db.close()
-        # テストデータをクリーンアップ
-        Base.metadata.drop_all(bind=engine)
+        session.close()
+        transaction.rollback()
+        connection.close()
 
 
-def override_get_db():
-    """データベース依存性をテスト用にオーバーライド"""
-    try:
-        db = TestingSessionLocal()
-        yield db
-    finally:
-        db.close()
+@pytest.fixture(scope="function")
+def db(db_session):
+    """既存のテスト用の互換性のための別名"""
+    return db_session
 
 
-app.dependency_overrides[get_db] = override_get_db
+@pytest.fixture(scope="function")
+def client(db_session):
+    """FastAPIアプリケーション用のテストクライアント（共有セッション）"""
+    def override_get_db():
+        try:
+            yield db_session
+        finally:
+            pass
 
-
-@pytest.fixture
-def client():
-    """FastAPIアプリケーション用のテストクライアントを作成
-
-    FastAPIアプリケーションに対してHTTPリクエストを送信するための
-    TestClientインスタンスを提供するフィクスチャです。
-
-    Returns:
-        設定済みのFastAPIアプリ用テストクライアント
-
-    使用例:
-        def test_endpoint(client):
-            response = client.get("/")
-            assert response.status_code == 200
-    """
-    # テーブル作成
-    Base.metadata.create_all(bind=engine)
+    app.dependency_overrides[get_db] = override_get_db
 
     with TestClient(app) as client:
         yield client
 
-    # テストデータをクリーンアップ
-    Base.metadata.drop_all(bind=engine)
+    # 依存性オーバーライドをクリア
+    app.dependency_overrides.clear()

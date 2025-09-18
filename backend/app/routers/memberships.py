@@ -3,7 +3,6 @@
 メンバーシップに関するAPIエンドポイントを提供します。
 """
 
-from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -18,7 +17,7 @@ from ..schemas.memberships import (
     BulkMembershipResponse,
     BulkMembershipDelete,
     BulkMembershipDeleteResponse,
-    MemberDeleteResponse
+    MemberDeleteResponse,
 )
 
 router = APIRouter(prefix="/api/memberships", tags=["memberships"])
@@ -32,8 +31,7 @@ router = APIRouter(prefix="/api/memberships", tags=["memberships"])
     description="指定されたグループに指定されたユーザーを追加します。",
 )
 async def add_member_to_group(
-    membership: MembershipCreate,
-    db: Session = Depends(get_db)
+    membership: MembershipCreate, db: Session = Depends(get_db)
 ):
     """グループにメンバーを追加する"""
     try:
@@ -42,14 +40,11 @@ async def add_member_to_group(
         )
         return result
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"メンバー追加処理中にエラーが発生しました: {str(e)}"
+            detail=f"メンバー追加処理中にエラーが発生しました: {str(e)}",
         )
 
 
@@ -60,34 +55,26 @@ async def add_member_to_group(
     description="指定されたグループから指定されたユーザーを削除します。",
 )
 async def remove_member_from_group(
-    group_id: int,
-    user_id: int,
-    db: Session = Depends(get_db)
+    group_id: int, user_id: int, db: Session = Depends(get_db)
 ):
     """グループからメンバーを削除する"""
     try:
-        success = MembershipService.remove_member_from_group(
-            db, group_id, user_id
-        )
+        success = MembershipService.remove_member_from_group(db, group_id, user_id)
         if success:
             return MemberDeleteResponse(
-                message="メンバーが正常に削除されました",
-                deleted_count=1
+                message="メンバーが正常に削除されました", deleted_count=1
             )
         else:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="指定されたメンバーシップが見つかりません"
+                detail="指定されたメンバーシップが見つかりません",
             )
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"メンバー削除処理中にエラーが発生しました: {str(e)}"
+            detail=f"メンバー削除処理中にエラーが発生しました: {str(e)}",
         )
 
 
@@ -98,24 +85,18 @@ async def remove_member_from_group(
     description="指定されたグループのメンバー一覧を取得します。",
 )
 async def get_group_members(
-    group_id: int,
-    include_deleted: bool = False,
-    db: Session = Depends(get_db)
+    group_id: int, include_deleted: bool = False, db: Session = Depends(get_db)
 ):
     """グループのメンバー一覧を取得する"""
     try:
-        members = MembershipService.get_group_members(
-            db, group_id, include_deleted
-        )
+        members = MembershipService.get_group_members(db, group_id, include_deleted)
         return MembersResponse(
-            group_id=group_id,
-            members=members,
-            total_count=len(members)
+            group_id=group_id, members=members, total_count=len(members)
         )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"グループメンバー取得処理中にエラーが発生しました: {str(e)}"
+            detail=f"グループメンバー取得処理中にエラーが発生しました: {str(e)}",
         )
 
 
@@ -126,24 +107,18 @@ async def get_group_members(
     description="指定されたユーザーが所属するグループの一覧を取得します。",
 )
 async def get_user_groups(
-    user_id: int,
-    include_deleted: bool = False,
-    db: Session = Depends(get_db)
+    user_id: int, include_deleted: bool = False, db: Session = Depends(get_db)
 ):
     """ユーザーの所属グループ一覧を取得する"""
     try:
-        groups = MembershipService.get_user_groups(
-            db, user_id, include_deleted
-        )
+        groups = MembershipService.get_user_groups(db, user_id, include_deleted)
         return UserMembershipsResponse(
-            user_id=user_id,
-            groups=groups,
-            total_count=len(groups)
+            user_id=user_id, groups=groups, total_count=len(groups)
         )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"ユーザーグループ取得処理中にエラーが発生しました: {str(e)}"
+            detail=f"ユーザーグループ取得処理中にエラーが発生しました: {str(e)}",
         )
 
 
@@ -155,8 +130,7 @@ async def get_user_groups(
     description="指定されたグループに複数のユーザーを一括で追加します。",
 )
 async def add_multiple_members_to_group(
-    bulk_membership: BulkMembershipCreate,
-    db: Session = Depends(get_db)
+    bulk_membership: BulkMembershipCreate, db: Session = Depends(get_db)
 ):
     """グループに複数のメンバーを一括追加する"""
     try:
@@ -169,17 +143,14 @@ async def add_multiple_members_to_group(
             group_id=bulk_membership.group_id,
             added_count=result["added_count"],
             already_member_count=result["already_member_count"],
-            errors=result["errors"]
+            errors=result["errors"],
         )
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"一括メンバー追加処理中にエラーが発生しました: {str(e)}"
+            detail=f"一括メンバー追加処理中にエラーが発生しました: {str(e)}",
         )
 
 
@@ -190,8 +161,7 @@ async def add_multiple_members_to_group(
     description="指定されたグループから複数のユーザーを一括で削除します。",
 )
 async def remove_multiple_members_from_group(
-    bulk_membership: BulkMembershipDelete,
-    db: Session = Depends(get_db)
+    bulk_membership: BulkMembershipDelete, db: Session = Depends(get_db)
 ):
     """グループから複数のメンバーを一括削除する"""
     try:
@@ -204,12 +174,12 @@ async def remove_multiple_members_from_group(
             group_id=bulk_membership.group_id,
             removed_count=result["removed_count"],
             not_member_count=result["not_member_count"],
-            errors=result["errors"]
+            errors=result["errors"],
         )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"一括メンバー削除処理中にエラーが発生しました: {str(e)}"
+            detail=f"一括メンバー削除処理中にエラーが発生しました: {str(e)}",
         )
 
 
@@ -219,23 +189,13 @@ async def remove_multiple_members_from_group(
     summary="メンバーシップ確認",
     description="指定されたユーザーが指定されたグループのメンバーかどうかを確認します。",
 )
-async def check_membership(
-    user_id: int,
-    group_id: int,
-    db: Session = Depends(get_db)
-):
+async def check_membership(user_id: int, group_id: int, db: Session = Depends(get_db)):
     """ユーザーがグループのメンバーかどうかを確認する"""
     try:
-        is_member = MembershipService.is_member_of_group(
-            db, user_id, group_id
-        )
-        return {
-            "user_id": user_id,
-            "group_id": group_id,
-            "is_member": is_member
-        }
+        is_member = MembershipService.is_member_of_group(db, user_id, group_id)
+        return {"user_id": user_id, "group_id": group_id, "is_member": is_member}
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"メンバーシップ確認処理中にエラーが発生しました: {str(e)}"
+            detail=f"メンバーシップ確認処理中にエラーが発生しました: {str(e)}",
         )
