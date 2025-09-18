@@ -13,12 +13,17 @@ FastAPIアプリケーションのテスト用設定とフィクスチャを定�
     python -m pytest tests/test_health.py -v
 """
 
+import os
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app.main import app
 from app.config.database import get_db, Base
+
+# テスト環境ではSQLiteを使用するように環境変数を設定
+os.environ["DATABASE_URL"] = "sqlite:///./test.db"
+os.environ["DEBUG"] = "false"
 
 
 # テスト用データベース設定
@@ -33,6 +38,11 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 @pytest.fixture(scope="function")
 def db_session():
     """テスト用データベースセッション（トランザクション管理）"""
+    # すべてのモデルをインポートしてテーブルを作成
+    from app.models.user import User  # noqa: F401
+    from app.models.group import Group  # noqa: F401
+    from app.models.membership import Membership  # noqa: F401
+
     # テーブル作成
     Base.metadata.create_all(bind=engine)
 
