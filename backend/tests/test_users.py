@@ -1435,5 +1435,3 @@ class TestUserDeleteIntegration:
             UserService.is_email_taken.reset_mock()
             UserService.create_user.reset_mock()
             UserService.delete_user_by_id.reset_mock()
-
-
