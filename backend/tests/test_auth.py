@@ -395,3 +395,46 @@ class TestAuthIntegration:
             UserService.create_user.reset_mock()
             AuthService.authenticate_user.reset_mock()
             AuthService.create_access_token.reset_mock()
+
+    def test_logout_success(self, client: TestClient):
+        """ログアウト - 成功"""
+        # ログアウトエンドポイントをテスト
+        response = client.post("/api/auth/logout")
+
+        assert response.status_code == 200
+        data = response.json()
+        assert "message" in data
+        assert "ログアウトしました" in data["message"]
+
+    def test_login_internal_error(self, client: TestClient):
+        """ログイン - 内部エラー"""
+        # モックデータベースセッション
+        mock_db = MagicMock()
+
+        # AuthServiceのメソッドをモック化（例外を発生させる）
+        AuthService.login_user = MagicMock(
+            side_effect=Exception("データベース接続エラー")
+        )
+
+        # データベースセッションをオーバーライド
+        def override_get_db():
+            yield mock_db
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        try:
+            # ログイン（内部エラー）
+            login_data = {"email": "test@example.com", "password": "password123"}
+            response = client.post("/api/auth/login", json=login_data)
+
+            assert response.status_code == 500
+            assert "ログイン処理中にエラーが発生しました" in response.json()["detail"]
+
+            # サービスメソッドが正しく呼ばれたことを確認
+            from app.schemas.auth import UserLogin
+
+            expected_user_login = UserLogin(**login_data)
+            AuthService.login_user.assert_called_once_with(mock_db, expected_user_login)
+        finally:
+            # 依存性オーバーライドをクリア
+            app.dependency_overrides.clear()

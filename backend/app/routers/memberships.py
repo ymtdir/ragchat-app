@@ -41,6 +41,8 @@ async def add_member_to_group(
         return result
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -71,6 +73,8 @@ async def remove_member_from_group(
             )
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -93,6 +97,8 @@ async def get_group_members(
         return MembersResponse(
             group_id=group_id, members=members, total_count=len(members)
         )
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -115,6 +121,8 @@ async def get_user_groups(
         return UserMembershipsResponse(
             user_id=user_id, groups=groups, total_count=len(groups)
         )
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -147,6 +155,8 @@ async def add_multiple_members_to_group(
         )
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -176,6 +186,8 @@ async def remove_multiple_members_from_group(
             not_member_count=result["not_member_count"],
             errors=result["errors"],
         )
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -194,6 +206,8 @@ async def check_membership(user_id: int, group_id: int, db: Session = Depends(ge
     try:
         is_member = MembershipService.is_member_of_group(db, user_id, group_id)
         return {"user_id": user_id, "group_id": group_id, "is_member": is_member}
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
