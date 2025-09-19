@@ -20,6 +20,7 @@
 from unittest.mock import MagicMock
 from sqlalchemy.exc import IntegrityError
 from datetime import datetime
+import pytest
 
 from app.main import app
 from app.config.database import get_db
@@ -1434,3 +1435,5 @@ class TestUserDeleteIntegration:
             UserService.is_email_taken.reset_mock()
             UserService.create_user.reset_mock()
             UserService.delete_user_by_id.reset_mock()
+
+

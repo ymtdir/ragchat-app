@@ -49,16 +49,13 @@ def db_session():
         # テーブル作成
         Base.metadata.create_all(bind=test_engine)
 
-        connection = test_engine.connect()
-        transaction = connection.begin()
-        session = TestSessionLocal(bind=connection)
+        # セッションを作成（トランザクション管理なし）
+        session = TestSessionLocal()
 
         try:
             yield session
         finally:
             session.close()
-            transaction.rollback()
-            connection.close()
             # テスト用データベースファイルを削除
             try:
                 os.unlink(tmp_file.name)
@@ -119,7 +116,3 @@ def client():
             os.unlink(tmp_file.name)
         except OSError:
             pass
-
-
-
-
