@@ -20,7 +20,6 @@
 from unittest.mock import MagicMock
 from sqlalchemy.exc import IntegrityError
 from datetime import datetime
-import pytest
 
 from app.main import app
 from app.config.database import get_db

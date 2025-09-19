@@ -95,7 +95,7 @@ class TestUserServiceDirect:
             mock_get.assert_called_once_with(mock_db, 1)
 
     def test_get_user_by_id_not_found(self):
-        """IDでユーザー取得の異常系テスト（存在しないユーザー）"""
+        """IDでユーザー取得の異常系テスト"""
         # モックデータベースセッション
         mock_db = MagicMock()
 
@@ -140,7 +140,7 @@ class TestUserServiceDirect:
             mock_get.assert_called_once_with(mock_db, "testuser")
 
     def test_get_user_by_name_not_found(self):
-        """名前でユーザー取得の異常系テスト（存在しないユーザー）"""
+        """名前でユーザー取得の異常系テスト"""
         # モックデータベースセッション
         mock_db = MagicMock()
 
@@ -185,7 +185,7 @@ class TestUserServiceDirect:
             mock_get.assert_called_once_with(mock_db, "test@example.com")
 
     def test_get_user_by_email_not_found(self):
-        """メールアドレスでユーザー取得の異常系テスト（存在しないユーザー）"""
+        """メールアドレスでユーザー取得の異常系テスト"""
         # モックデータベースセッション
         mock_db = MagicMock()
 
@@ -261,7 +261,7 @@ class TestUserServiceDirect:
             mock_check.assert_called_once_with(mock_db, "testuser")
 
     def test_is_email_taken_true(self):
-        """メールアドレス重複チェックの正常系テスト（重複あり）"""
+        """メールアドレス重複チェックの正常系テスト"""
         # モックデータベースセッション
         mock_db = MagicMock()
 
@@ -277,7 +277,7 @@ class TestUserServiceDirect:
             mock_check.assert_called_once_with(mock_db, "test@example.com")
 
     def test_is_email_taken_false(self):
-        """メールアドレス重複チェックの正常系テスト（重複なし）"""
+        """メールアドレス重複チェックの異常系テスト"""
         # モックデータベースセッション
         mock_db = MagicMock()
 
@@ -1167,9 +1167,8 @@ class TestUserServiceImplementation:
     def test_get_user_by_name_exclude_deleted_real_implementation(self):
         """削除済みユーザーを除外する名前検索テスト（実装テスト）"""
         mock_db = MagicMock()
-        mock_db.query.return_value.filter.return_value.filter.return_value.first.return_value = (
-            None
-        )
+        mock_query = mock_db.query.return_value.filter.return_value.filter.return_value
+        mock_query.first.return_value = None
 
         result = UserService.get_user_by_name(
             mock_db, "testuser", include_deleted=False
@@ -1203,9 +1202,8 @@ class TestUserServiceImplementation:
     def test_get_user_by_email_exclude_deleted_real_implementation(self):
         """削除済みユーザーを除外するメール検索テスト（実装テスト）"""
         mock_db = MagicMock()
-        mock_db.query.return_value.filter.return_value.filter.return_value.first.return_value = (
-            None
-        )
+        mock_query = mock_db.query.return_value.filter.return_value.filter.return_value
+        mock_query.first.return_value = None
 
         result = UserService.get_user_by_email(
             mock_db, "test@example.com", include_deleted=False
@@ -1224,9 +1222,8 @@ class TestUserServiceImplementation:
     def test_update_user_not_found_real_implementation(self):
         """存在しないユーザーの更新テスト（実装テスト）"""
         mock_db = MagicMock()
-        mock_db.query.return_value.filter.return_value.filter.return_value.first.return_value = (
-            None
-        )
+        mock_query = mock_db.query.return_value.filter.return_value.filter.return_value
+        mock_query.first.return_value = None
 
         update_data = UserUpdate(name="updated_user")
         result = UserService.update_user(mock_db, 999, update_data)
@@ -1245,9 +1242,8 @@ class TestUserServiceImplementation:
             created_at=datetime.now(),
             updated_at=datetime.now(),
         )
-        mock_db.query.return_value.filter.return_value.filter.return_value.first.return_value = (
-            mock_user
-        )
+        mock_query = mock_db.query.return_value.filter.return_value.filter.return_value
+        mock_query.first.return_value = mock_user
         mock_db.commit.side_effect = IntegrityError(
             "UNIQUE constraint failed: users.name", "", ""
         )
@@ -1274,9 +1270,8 @@ class TestUserServiceImplementation:
             updated_at=datetime.now(),
         )
         mock_user.soft_delete = MagicMock()
-        mock_db.query.return_value.filter.return_value.filter.return_value.first.return_value = (
-            mock_user
-        )
+        mock_query = mock_db.query.return_value.filter.return_value.filter.return_value
+        mock_query.first.return_value = mock_user
         mock_db.commit.return_value = None
 
         result = UserService.soft_delete_user_by_id(mock_db, 1)
@@ -1288,9 +1283,8 @@ class TestUserServiceImplementation:
     def test_soft_delete_user_by_id_not_found_real_implementation(self):
         """存在しないユーザーの論理削除テスト（実装テスト）"""
         mock_db = MagicMock()
-        mock_db.query.return_value.filter.return_value.filter.return_value.first.return_value = (
-            None
-        )
+        mock_query = mock_db.query.return_value.filter.return_value.filter.return_value
+        mock_query.first.return_value = None
 
         result = UserService.soft_delete_user_by_id(mock_db, 999)
 
@@ -1309,9 +1303,8 @@ class TestUserServiceImplementation:
             updated_at=datetime.now(),
         )
         mock_user.soft_delete = MagicMock(side_effect=Exception("削除エラー"))
-        mock_db.query.return_value.filter.return_value.filter.return_value.first.return_value = (
-            mock_user
-        )
+        mock_query = mock_db.query.return_value.filter.return_value.filter.return_value
+        mock_query.first.return_value = mock_user
         mock_db.rollback.return_value = None
 
         with pytest.raises(Exception, match="削除エラー"):
@@ -1331,9 +1324,8 @@ class TestUserServiceImplementation:
             created_at=datetime.now(),
             updated_at=datetime.now(),
         )
-        mock_db.query.return_value.filter.return_value.filter.return_value.first.return_value = (
-            mock_user
-        )
+        mock_query = mock_db.query.return_value.filter.return_value.filter.return_value
+        mock_query.first.return_value = mock_user
         mock_db.delete.side_effect = Exception("削除エラー")
         mock_db.rollback.return_value = None
 
@@ -1349,9 +1341,8 @@ class TestUserServiceImplementation:
             User(id=1, name="user1", email="user1@example.com"),
             User(id=2, name="user2", email="user2@example.com"),
         ]
-        mock_db.query.return_value.filter.return_value.filter.return_value.all.return_value = (
-            mock_users
-        )
+        mock_query = mock_db.query.return_value.filter.return_value.filter.return_value
+        mock_query.all.return_value = mock_users
         mock_db.commit.side_effect = Exception("削除エラー")
         mock_db.rollback.return_value = None
 
@@ -1373,9 +1364,8 @@ class TestUserServiceImplementation:
             updated_at=datetime.now(),
         )
         mock_user.soft_delete = MagicMock()
-        mock_db.query.return_value.filter.return_value.filter.return_value.first.return_value = (
-            mock_user
-        )
+        mock_query = mock_db.query.return_value.filter.return_value.filter.return_value
+        mock_query.first.return_value = mock_user
         mock_db.commit.return_value = None
 
         result = UserService.delete_user_by_id(mock_db, 1)

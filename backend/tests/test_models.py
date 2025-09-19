@@ -4,7 +4,6 @@
 User, Group, Membershipモデルの機能をテストします。
 """
 
-import pytest
 from datetime import datetime, timezone
 from app.models.user import User
 from app.models.group import Group

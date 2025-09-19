@@ -18,13 +18,9 @@
     coverage html
 """
 
-import pytest
 from unittest.mock import MagicMock
 from datetime import datetime
 from fastapi.testclient import TestClient
-
-from app.models.user import User
-from app.models.group import Group
 from app.models.membership import Membership
 from app.services.memberships import MembershipService
 from app.main import app
@@ -76,7 +72,7 @@ class TestMemberships:
             # サービスメソッドが正しく呼ばれたことを確認
             MembershipService.add_member_to_group.assert_called_once_with(mock_db, 1, 1)
         finally:
-            # 依存性オーバーライドをクリア
+            # 依存性クリア
             app.dependency_overrides.clear()
 
     def test_add_member_to_group_user_not_found(self, client: TestClient):
@@ -109,7 +105,7 @@ class TestMemberships:
                 mock_db, 1, 999
             )
         finally:
-            # 依存性オーバーライドをクリア
+            # 依存性クリア
             app.dependency_overrides.clear()
 
     def test_add_member_to_group_group_not_found(self, client: TestClient):
@@ -142,7 +138,7 @@ class TestMemberships:
                 mock_db, 999, 1
             )
         finally:
-            # 依存性オーバーライドをクリア
+            # 依存性クリア
             app.dependency_overrides.clear()
 
     def test_remove_member_from_group_success(self, client: TestClient):
@@ -173,7 +169,7 @@ class TestMemberships:
                 mock_db, 1, 1
             )
         finally:
-            # 依存性オーバーライドをクリア
+            # 依存性クリア
             app.dependency_overrides.clear()
 
     def test_remove_member_from_group_not_found(self, client: TestClient):
@@ -204,7 +200,7 @@ class TestMemberships:
                 mock_db, 1, 999
             )
         finally:
-            # 依存性オーバーライドをクリア
+            # 依存性クリア
             app.dependency_overrides.clear()
 
     def test_remove_member_from_group_value_error(self, client: TestClient):
@@ -235,7 +231,7 @@ class TestMemberships:
                 mock_db, 1, 999
             )
         finally:
-            # 依存性オーバーライドをクリア
+            # 依存性クリア
             app.dependency_overrides.clear()
 
     def test_get_group_members_success(self, client: TestClient):
@@ -274,7 +270,7 @@ class TestMemberships:
                 mock_db, 1, False
             )
         finally:
-            # 依存性オーバーライドをクリア
+            # 依存性クリア
             app.dependency_overrides.clear()
 
     def test_get_group_members_with_deleted(self, client: TestClient):
@@ -312,7 +308,7 @@ class TestMemberships:
                 mock_db, 1, True
             )
         finally:
-            # 依存性オーバーライドをクリア
+            # 依存性クリア
             app.dependency_overrides.clear()
 
     def test_get_user_groups_success(self, client: TestClient):
@@ -349,7 +345,7 @@ class TestMemberships:
             # サービスメソッドが正しく呼ばれたことを確認
             MembershipService.get_user_groups.assert_called_once_with(mock_db, 1, False)
         finally:
-            # 依存性オーバーライドをクリア
+            # 依存性クリア
             app.dependency_overrides.clear()
 
     def test_add_multiple_members_to_group_success(self, client: TestClient):
@@ -389,7 +385,7 @@ class TestMemberships:
                 mock_db, 1, [1, 2, 3]
             )
         finally:
-            # 依存性オーバーライドをクリア
+            # 依存性クリア
             app.dependency_overrides.clear()
 
     def test_add_multiple_members_to_group_value_error(self, client: TestClient):
@@ -422,7 +418,7 @@ class TestMemberships:
                 mock_db, 999, [1, 2]
             )
         finally:
-            # 依存性オーバーライドをクリア
+            # 依存性クリア
             app.dependency_overrides.clear()
 
     def test_remove_multiple_members_from_group_success(self, client: TestClient):
@@ -459,11 +455,10 @@ class TestMemberships:
             assert data["errors"] == []
 
             # サービスメソッドが正しく呼ばれたことを確認
-            MembershipService.remove_multiple_members_from_group.assert_called_once_with(
-                mock_db, 1, [1, 2, 3]
-            )
+            remove_method = MembershipService.remove_multiple_members_from_group
+            remove_method.assert_called_once_with(mock_db, 1, [1, 2, 3])
         finally:
-            # 依存性オーバーライドをクリア
+            # 依存性クリア
             app.dependency_overrides.clear()
 
     def test_check_membership_true(self, client: TestClient):
@@ -493,7 +488,7 @@ class TestMemberships:
             # サービスメソッドが正しく呼ばれたことを確認
             MembershipService.is_member_of_group.assert_called_once_with(mock_db, 1, 1)
         finally:
-            # 依存性オーバーライドをクリア
+            # 依存性クリア
             app.dependency_overrides.clear()
 
     def test_check_membership_false(self, client: TestClient):
@@ -523,7 +518,7 @@ class TestMemberships:
             # サービスメソッドが正しく呼ばれたことを確認
             MembershipService.is_member_of_group.assert_called_once_with(mock_db, 1, 1)
         finally:
-            # 依存性オーバーライドをクリア
+            # 依存性クリア
             app.dependency_overrides.clear()
 
     def test_add_member_to_group_internal_error(self, client: TestClient):
@@ -556,7 +551,7 @@ class TestMemberships:
             # サービスメソッドが正しく呼ばれたことを確認
             MembershipService.add_member_to_group.assert_called_once_with(mock_db, 1, 1)
         finally:
-            # 依存性オーバーライドをクリア
+            # 依存性クリア
             app.dependency_overrides.clear()
 
     def test_remove_member_from_group_internal_error(self, client: TestClient):
@@ -589,7 +584,7 @@ class TestMemberships:
                 mock_db, 1, 1
             )
         finally:
-            # 依存性オーバーライドをクリア
+            # 依存性クリア
             app.dependency_overrides.clear()
 
     def test_get_group_members_internal_error(self, client: TestClient):
@@ -623,7 +618,7 @@ class TestMemberships:
                 mock_db, 1, False
             )
         finally:
-            # 依存性オーバーライドをクリア
+            # 依存性クリア
             app.dependency_overrides.clear()
 
     def test_get_user_groups_internal_error(self, client: TestClient):
@@ -655,7 +650,7 @@ class TestMemberships:
             # サービスメソッドが正しく呼ばれたことを確認
             MembershipService.get_user_groups.assert_called_once_with(mock_db, 1, False)
         finally:
-            # 依存性オーバーライドをクリア
+            # 依存性クリア
             app.dependency_overrides.clear()
 
     def test_add_multiple_members_to_group_internal_error(self, client: TestClient):
@@ -691,7 +686,7 @@ class TestMemberships:
                 mock_db, 1, [1, 2]
             )
         finally:
-            # 依存性オーバーライドをクリア
+            # 依存性クリア
             app.dependency_overrides.clear()
 
     def test_remove_multiple_members_from_group_internal_error(
@@ -725,11 +720,10 @@ class TestMemberships:
             )
 
             # サービスメソッドが正しく呼ばれたことを確認
-            MembershipService.remove_multiple_members_from_group.assert_called_once_with(
-                mock_db, 1, [1, 2]
-            )
+            remove_method = MembershipService.remove_multiple_members_from_group
+            remove_method.assert_called_once_with(mock_db, 1, [1, 2])
         finally:
-            # 依存性オーバーライドをクリア
+            # 依存性クリア
             app.dependency_overrides.clear()
 
     def test_check_membership_internal_error(self, client: TestClient):
@@ -761,7 +755,7 @@ class TestMemberships:
             # サービスメソッドが正しく呼ばれたことを確認
             MembershipService.is_member_of_group.assert_called_once_with(mock_db, 1, 1)
         finally:
-            # 依存性オーバーライドをクリア
+            # 依存性クリア
             app.dependency_overrides.clear()
 
     def test_add_member_to_group_http_exception(self, client: TestClient):
@@ -796,7 +790,7 @@ class TestMemberships:
             # サービスメソッドが正しく呼ばれたことを確認
             MembershipService.add_member_to_group.assert_called_once_with(mock_db, 1, 1)
         finally:
-            # 依存性オーバーライドをクリア
+            # 依存性クリア
             app.dependency_overrides.clear()
 
     def test_get_group_members_http_exception(self, client: TestClient):
@@ -831,7 +825,7 @@ class TestMemberships:
                 mock_db, 1, False
             )
         finally:
-            # 依存性オーバーライドをクリア
+            # 依存性クリア
             app.dependency_overrides.clear()
 
     def test_get_user_groups_http_exception(self, client: TestClient):
@@ -864,7 +858,7 @@ class TestMemberships:
             # サービスメソッドが正しく呼ばれたことを確認
             MembershipService.get_user_groups.assert_called_once_with(mock_db, 1, False)
         finally:
-            # 依存性オーバーライドをクリア
+            # 依存性クリア
             app.dependency_overrides.clear()
 
     def test_add_multiple_members_to_group_http_exception(self, client: TestClient):
@@ -901,7 +895,7 @@ class TestMemberships:
                 mock_db, 1, [1, 2]
             )
         finally:
-            # 依存性オーバーライドをクリア
+            # 依存性クリア
             app.dependency_overrides.clear()
 
     def test_remove_multiple_members_from_group_http_exception(
@@ -936,11 +930,10 @@ class TestMemberships:
             assert "アクセス権限がありません" in response.json()["detail"]
 
             # サービスメソッドが正しく呼ばれたことを確認
-            MembershipService.remove_multiple_members_from_group.assert_called_once_with(
-                mock_db, 1, [1, 2]
-            )
+            remove_method = MembershipService.remove_multiple_members_from_group
+            remove_method.assert_called_once_with(mock_db, 1, [1, 2])
         finally:
-            # 依存性オーバーライドをクリア
+            # 依存性クリア
             app.dependency_overrides.clear()
 
     def test_check_membership_http_exception(self, client: TestClient):
@@ -973,5 +966,5 @@ class TestMemberships:
             # サービスメソッドが正しく呼ばれたことを確認
             MembershipService.is_member_of_group.assert_called_once_with(mock_db, 1, 1)
         finally:
-            # 依存性オーバーライドをクリア
+            # 依存性クリア
             app.dependency_overrides.clear()

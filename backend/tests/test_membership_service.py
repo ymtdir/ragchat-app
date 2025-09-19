@@ -3,23 +3,21 @@ MembershipServiceの直接テストモジュール
 
 テスト実行方法:
 1. コマンドラインからの実行:
-   python -m pytest -v tests/
-   python -m pytest -v tests/test_membership_service.py
+    python -m pytest -v tests/
+    python -m pytest -v tests/test_membership_service.py
 
 2. 特定のテストメソッドだけ実行:
-   python -m pytest -v \
-       tests/test_membership_service.py::TestMembershipServiceDirect::test_add_member_to_group_success
+    python -m pytest -v \
+        tests/test_membership_service.py::TestMembershipServiceDirect::test_add_member_to_group_success
 
 3. カバレッジレポート生成:
-   coverage run -m pytest tests/test_membership_service.py
-   coverage report
-   coverage html
+    coverage run -m pytest tests/test_membership_service.py
+    coverage report
+    coverage html
 """
 
 import pytest
 from unittest.mock import MagicMock, patch
-from sqlalchemy.exc import IntegrityError
-from datetime import datetime
 
 from app.models.membership import Membership
 from app.models.user import User
@@ -126,9 +124,8 @@ class TestMembershipServiceDirect:
     def test_get_group_members_empty(self):
         """グループのメンバー一覧取得の空結果テスト"""
         mock_db = MagicMock()
-        mock_db.query.return_value.join.return_value.filter.return_value.all.return_value = (
-            []
-        )
+        mock_query = mock_db.query.return_value.join.return_value.filter.return_value
+        mock_query.all.return_value = []
 
         result = MembershipService.get_group_members(mock_db, 1)
 
@@ -138,9 +135,8 @@ class TestMembershipServiceDirect:
     def test_get_user_groups_empty(self):
         """ユーザーの所属グループ一覧取得の空結果テスト"""
         mock_db = MagicMock()
-        mock_db.query.return_value.join.return_value.filter.return_value.all.return_value = (
-            []
-        )
+        mock_query = mock_db.query.return_value.join.return_value.filter.return_value
+        mock_query.all.return_value = []
 
         result = MembershipService.get_user_groups(mock_db, 1)
 

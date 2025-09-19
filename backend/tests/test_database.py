@@ -7,7 +7,8 @@
 
 2. 特定のテストメソッドだけ実行:
     python -m pytest -v tests/test_database.py::TestDatabase::test_get_db_success
-    python -m pytest -v tests/test_database.py::TestDatabase::test_get_db_connection_error
+    python -m pytest -v \
+        tests/test_database.py::TestDatabase::test_get_db_connection_error
 
 3. カバレッジレポート生成:
     coverage run -m pytest tests/test_database.py

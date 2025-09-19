@@ -3,17 +3,17 @@ GroupServiceの直接テストモジュール
 
 テスト実行方法:
 1. コマンドラインからの実行:
-   python -m pytest -v tests/
-   python -m pytest -v tests/test_group_service.py
+    python -m pytest -v tests/
+    python -m pytest -v tests/test_group_service.py
 
 2. 特定のテストメソッドだけ実行:
-   python -m pytest -v \
-       tests/test_group_service.py::TestGroupServiceDirect::test_create_group_success
+    python -m pytest -v \
+        tests/test_group_service.py::TestGroupServiceDirect::test_create_group_success
 
 3. カバレッジレポート生成:
-   coverage run -m pytest tests/test_group_service.py
-   coverage report
-   coverage html
+    coverage run -m pytest tests/test_group_service.py
+    coverage report
+    coverage html
 """
 
 import pytest
@@ -339,9 +339,8 @@ class TestGroupServiceImplementation:
     def test_update_group_not_found_real_implementation(self):
         """存在しないグループの更新テスト（実装テスト）"""
         mock_db = MagicMock()
-        mock_db.query.return_value.filter.return_value.filter.return_value.first.return_value = (
-            None
-        )
+        mock_query = mock_db.query.return_value.filter.return_value.filter.return_value
+        mock_query.first.return_value = None
 
         update_data = GroupUpdate(name="updated_group")
         result = GroupService.update_group(mock_db, 999, update_data)
@@ -350,7 +349,7 @@ class TestGroupServiceImplementation:
         mock_db.query.assert_called_once()
 
     def test_update_group_integrity_error_other_real_implementation(self):
-        """グループ更新時のその他のIntegrityErrorテスト（実装テスト）"""
+        """グループ更新時のその他のIntegrityErrorテスト"""
         mock_db = MagicMock()
         mock_group = Group(
             id=1,
@@ -359,9 +358,8 @@ class TestGroupServiceImplementation:
             created_at=datetime.now(),
             updated_at=datetime.now(),
         )
-        mock_db.query.return_value.filter.return_value.filter.return_value.first.return_value = (
-            mock_group
-        )
+        mock_query = mock_db.query.return_value.filter.return_value.filter.return_value
+        mock_query.first.return_value = mock_group
         mock_db.commit.side_effect = IntegrityError(
             "UNIQUE constraint failed: groups.description", "", ""
         )
@@ -378,9 +376,8 @@ class TestGroupServiceImplementation:
     def test_soft_delete_group_by_id_not_found_real_implementation(self):
         """存在しないグループの論理削除テスト（実装テスト）"""
         mock_db = MagicMock()
-        mock_db.query.return_value.filter.return_value.filter.return_value.first.return_value = (
-            None
-        )
+        mock_query = mock_db.query.return_value.filter.return_value.filter.return_value
+        mock_query.first.return_value = None
 
         result = GroupService.soft_delete_group_by_id(mock_db, 999)
 
@@ -398,9 +395,8 @@ class TestGroupServiceImplementation:
             updated_at=datetime.now(),
         )
         mock_group.soft_delete = MagicMock(side_effect=Exception("削除エラー"))
-        mock_db.query.return_value.filter.return_value.filter.return_value.first.return_value = (
-            mock_group
-        )
+        mock_query = mock_db.query.return_value.filter.return_value.filter.return_value
+        mock_query.first.return_value = mock_group
         mock_db.rollback.return_value = None
 
         with pytest.raises(Exception, match="削除エラー"):
@@ -419,9 +415,8 @@ class TestGroupServiceImplementation:
             created_at=datetime.now(),
             updated_at=datetime.now(),
         )
-        mock_db.query.return_value.filter.return_value.filter.return_value.first.return_value = (
-            mock_group
-        )
+        mock_query = mock_db.query.return_value.filter.return_value.filter.return_value
+        mock_query.first.return_value = mock_group
         mock_db.delete.side_effect = Exception("削除エラー")
         mock_db.rollback.return_value = None
 
@@ -437,9 +432,8 @@ class TestGroupServiceImplementation:
             Group(id=1, name="group1", description="グループ1"),
             Group(id=2, name="group2", description="グループ2"),
         ]
-        mock_db.query.return_value.filter.return_value.filter.return_value.all.return_value = (
-            mock_groups
-        )
+        mock_query = mock_db.query.return_value.filter.return_value.filter.return_value
+        mock_query.all.return_value = mock_groups
         mock_db.commit.side_effect = Exception("削除エラー")
         mock_db.rollback.return_value = None
 
