@@ -265,7 +265,11 @@ export function GroupTable({
     setIsBulkDeleting(false);
   };
 
-  const columns = createColumns(handleEditGroup, handleDeleteGroup, onManageMembers);
+  const columns = createColumns(
+    handleEditGroup,
+    handleDeleteGroup,
+    onManageMembers
+  );
   const { table } = useGroupTable(data, columns);
 
   // 選択された行の数を取得

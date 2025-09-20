@@ -4,7 +4,7 @@
  * グループのメンバー管理（表示、追加、削除）を行うモーダルコンポーネント
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Search, Plus, Trash2, Users, Loader2, UserPlus } from "lucide-react";
 import {
   Dialog,
@@ -62,7 +62,7 @@ export function GroupMemberManagementModal({
   const [error, setError] = useState<string | null>(null);
 
   // メンバー一覧を取得
-  const fetchMembers = async () => {
+  const fetchMembers = useCallback(async () => {
     if (!group) return;
 
     try {
@@ -79,10 +79,10 @@ export function GroupMemberManagementModal({
     } finally {
       setIsLoadingMembers(false);
     }
-  };
+  }, [group]);
 
   // 利用可能なユーザー一覧を取得
-  const fetchAvailableUsers = async () => {
+  const fetchAvailableUsers = useCallback(async () => {
     try {
       setIsLoadingUsers(true);
       setError(null);
@@ -97,7 +97,7 @@ export function GroupMemberManagementModal({
     } finally {
       setIsLoadingUsers(false);
     }
-  };
+  }, []);
 
   // モーダルが開かれた時の初期化
   useEffect(() => {
@@ -109,7 +109,7 @@ export function GroupMemberManagementModal({
       setSelectedMemberIds(new Set());
       setError(null);
     }
-  }, [isOpen, group]);
+  }, [isOpen, group, fetchMembers, fetchAvailableUsers]);
 
   // 検索でフィルタリングされたユーザー一覧（現在のメンバーを除外）
   const filteredAvailableUsers = availableUsers.filter(user => {
@@ -168,7 +168,9 @@ export function GroupMemberManagementModal({
       onMembershipChange?.();
     } catch (err) {
       console.error("メンバー追加に失敗:", err);
-      setError(`メンバーの追加に失敗しました: ${err instanceof Error ? err.message : String(err)}`);
+      setError(
+        `メンバーの追加に失敗しました: ${err instanceof Error ? err.message : String(err)}`
+      );
     } finally {
       setIsAddingMembers(false);
     }
@@ -197,7 +199,9 @@ export function GroupMemberManagementModal({
       onMembershipChange?.();
     } catch (err) {
       console.error("メンバー削除に失敗:", err);
-      setError(`メンバーの削除に失敗しました: ${err instanceof Error ? err.message : String(err)}`);
+      setError(
+        `メンバーの削除に失敗しました: ${err instanceof Error ? err.message : String(err)}`
+      );
     } finally {
       setIsRemovingMembers(false);
     }

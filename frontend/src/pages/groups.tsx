@@ -15,8 +15,12 @@ export function GroupsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isMemberManagementModalOpen, setIsMemberManagementModalOpen] = useState(false);
-  const [selectedGroupForMemberManagement, setSelectedGroupForMemberManagement] = useState<Group | null>(null);
+  const [isMemberManagementModalOpen, setIsMemberManagementModalOpen] =
+    useState(false);
+  const [
+    selectedGroupForMemberManagement,
+    setSelectedGroupForMemberManagement,
+  ] = useState<Group | null>(null);
 
   const fetchGroups = async () => {
     try {

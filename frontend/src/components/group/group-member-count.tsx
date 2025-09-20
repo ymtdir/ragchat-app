@@ -14,7 +14,10 @@ interface GroupMemberCountProps {
   className?: string;
 }
 
-export function GroupMemberCount({ groupId, className }: GroupMemberCountProps) {
+export function GroupMemberCount({
+  groupId,
+  className,
+}: GroupMemberCountProps) {
   const [memberCount, setMemberCount] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -49,7 +52,9 @@ export function GroupMemberCount({ groupId, className }: GroupMemberCountProps) 
 
   if (error) {
     return (
-      <div className={`flex items-center gap-1 text-muted-foreground ${className}`}>
+      <div
+        className={`flex items-center gap-1 text-muted-foreground ${className}`}
+      >
         <Users className="h-4 w-4" />
         <span className="text-sm">-</span>
       </div>

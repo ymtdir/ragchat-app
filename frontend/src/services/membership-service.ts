@@ -17,7 +17,8 @@ import type {
   User,
 } from "@/types/api";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
 class MembershipServiceClass {
   /**
@@ -45,7 +46,9 @@ class MembershipServiceClass {
    * レスポンスのエラーハンドリング
    */
   private async handleResponse<T>(response: Response): Promise<T> {
-    console.log(`API Response: ${response.status} ${response.statusText} for ${response.url}`);
+    console.log(
+      `API Response: ${response.status} ${response.statusText} for ${response.url}`
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -71,7 +74,10 @@ class MembershipServiceClass {
   /**
    * グループのメンバー一覧を取得
    */
-  async getGroupMembers(groupId: number, includeDeleted = false): Promise<MembersResponse> {
+  async getGroupMembers(
+    groupId: number,
+    includeDeleted = false
+  ): Promise<MembersResponse> {
     const url = `${API_BASE_URL}/api/memberships/groups/${groupId}/members?include_deleted=${includeDeleted}`;
 
     const response = await fetch(url, {
@@ -85,7 +91,10 @@ class MembershipServiceClass {
   /**
    * ユーザーの所属グループ一覧を取得
    */
-  async getUserMemberships(userId: number, includeDeleted = false): Promise<UserMembershipsResponse> {
+  async getUserMemberships(
+    userId: number,
+    includeDeleted = false
+  ): Promise<UserMembershipsResponse> {
     const url = `${API_BASE_URL}/api/memberships/users/${userId}/groups?include_deleted=${includeDeleted}`;
 
     const response = await fetch(url, {
@@ -112,11 +121,17 @@ class MembershipServiceClass {
   /**
    * グループからメンバーを削除
    */
-  async removeMemberFromGroup(groupId: number, userId: number): Promise<MemberDeleteResponse> {
-    const response = await fetch(`${API_BASE_URL}/api/memberships/groups/${groupId}/users/${userId}`, {
-      method: "DELETE",
-      headers: this.getAuthHeaders(),
-    });
+  async removeMemberFromGroup(
+    groupId: number,
+    userId: number
+  ): Promise<MemberDeleteResponse> {
+    const response = await fetch(
+      `${API_BASE_URL}/api/memberships/groups/${groupId}/users/${userId}`,
+      {
+        method: "DELETE",
+        headers: this.getAuthHeaders(),
+      }
+    );
 
     return this.handleResponse<MemberDeleteResponse>(response);
   }
@@ -124,7 +139,9 @@ class MembershipServiceClass {
   /**
    * グループに複数のメンバーを一括追加
    */
-  async addMultipleMembersToGroup(bulkMembership: BulkMembershipCreate): Promise<BulkMembershipResponse> {
+  async addMultipleMembersToGroup(
+    bulkMembership: BulkMembershipCreate
+  ): Promise<BulkMembershipResponse> {
     const response = await fetch(`${API_BASE_URL}/api/memberships/bulk-add`, {
       method: "POST",
       headers: this.getAuthHeaders(),
@@ -137,12 +154,17 @@ class MembershipServiceClass {
   /**
    * グループから複数のメンバーを一括削除
    */
-  async removeMultipleMembersFromGroup(bulkMembership: BulkMembershipDelete): Promise<BulkMembershipDeleteResponse> {
-    const response = await fetch(`${API_BASE_URL}/api/memberships/bulk-remove`, {
-      method: "POST",
-      headers: this.getAuthHeaders(),
-      body: JSON.stringify(bulkMembership),
-    });
+  async removeMultipleMembersFromGroup(
+    bulkMembership: BulkMembershipDelete
+  ): Promise<BulkMembershipDeleteResponse> {
+    const response = await fetch(
+      `${API_BASE_URL}/api/memberships/bulk-remove`,
+      {
+        method: "POST",
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify(bulkMembership),
+      }
+    );
 
     return this.handleResponse<BulkMembershipDeleteResponse>(response);
   }
