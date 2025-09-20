@@ -130,7 +130,7 @@ class MembershipService:
             query = query.filter(
                 and_(
                     Membership.deleted_at.is_(None),
-                    User.deleted_at.is_(None)  # 削除されたユーザーも除外
+                    User.deleted_at.is_(None),  # 削除されたユーザーも除外
                 )
             )
 
