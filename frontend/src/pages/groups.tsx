@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { GroupTable } from "@/components/group/group-table";
 import { GroupCreateModal } from "@/components/group/group-create-modal";
+import { GroupMemberManagementModal } from "@/components/group/group-member-management-modal";
 import type { Group } from "@/types/api";
 import { GroupService } from "@/services/group-service";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -14,6 +15,8 @@ export function GroupsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isMemberManagementModalOpen, setIsMemberManagementModalOpen] = useState(false);
+  const [selectedGroupForMemberManagement, setSelectedGroupForMemberManagement] = useState<Group | null>(null);
 
   const fetchGroups = async () => {
     try {
@@ -63,6 +66,22 @@ export function GroupsPage() {
     );
   };
 
+  const handleManageMembers = (group: Group) => {
+    setSelectedGroupForMemberManagement(group);
+    setIsMemberManagementModalOpen(true);
+  };
+
+  const handleCloseMemberManagement = () => {
+    setIsMemberManagementModalOpen(false);
+    setSelectedGroupForMemberManagement(null);
+  };
+
+  const handleMembershipChange = () => {
+    // メンバーシップが変更されたら、UI を更新する必要がある場合は
+    // ここで処理を行う（例：グループ一覧の再読み込み）
+    // 現在は特に何もしないが、将来的にはメンバー数の更新などを行う可能性がある
+  };
+
   const renderContent = () => {
     if (error) {
       return (
@@ -110,6 +129,7 @@ export function GroupsPage() {
           onGroupUpdate={handleGroupUpdate}
           onGroupDelete={handleGroupDelete}
           onBulkGroupDelete={handleBulkGroupDelete}
+          onManageMembers={handleManageMembers}
         />
       </div>
     );
@@ -133,6 +153,12 @@ export function GroupsPage() {
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onSave={handleGroupCreate}
+      />
+      <GroupMemberManagementModal
+        group={selectedGroupForMemberManagement}
+        isOpen={isMemberManagementModalOpen}
+        onClose={handleCloseMemberManagement}
+        onMembershipChange={handleMembershipChange}
       />
     </SidebarProvider>
   );

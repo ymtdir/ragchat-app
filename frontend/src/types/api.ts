@@ -44,6 +44,81 @@ export type GroupsResponse = {
   total: number;
 };
 
+// メンバーシップ関連の型定義
+export type Membership = {
+  id: number;
+  user_id: number;
+  group_id: number;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+};
+
+export type MembershipCreate = {
+  user_id: number;
+  group_id: number;
+};
+
+export type MembershipWithUser = Membership & {
+  user: User;
+};
+
+export type MembershipWithGroup = Membership & {
+  group: Group;
+};
+
+export type Member = {
+  membership_id: number;
+  user_id: number;
+  user_name: string;
+  user_email: string;
+  joined_at: string;
+  is_active: boolean;
+};
+
+export type MembersResponse = {
+  group_id: number;
+  members: Member[];
+  total_count: number;
+};
+
+export type UserMembershipsResponse = {
+  user_id: number;
+  groups: Group[];
+  total_count: number;
+};
+
+export type BulkMembershipCreate = {
+  group_id: number;
+  user_ids: number[];
+};
+
+export type BulkMembershipResponse = {
+  message: string;
+  group_id: number;
+  added_count: number;
+  already_member_count: number;
+  errors: string[];
+};
+
+export type BulkMembershipDelete = {
+  group_id: number;
+  user_ids: number[];
+};
+
+export type BulkMembershipDeleteResponse = {
+  message: string;
+  group_id: number;
+  removed_count: number;
+  not_member_count: number;
+  errors: string[];
+};
+
+export type MemberDeleteResponse = {
+  message: string;
+  deleted_count: number;
+};
+
 // ユーザーのヘルパー関数
 export const UserHelpers = {
   /**

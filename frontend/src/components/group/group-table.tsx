@@ -29,12 +29,14 @@ import { useGroupTable } from "@/hooks/use-group-table";
 import { GroupEditModal } from "./group-edit-modal";
 import { GroupDeleteDialog } from "./group-delete-dialog";
 import { GroupBulkDeleteDialog } from "./group-bulk-delete-dialog";
+import { GroupMemberCount } from "./group-member-count";
 import type { Group } from "@/types/api";
 
 // columnsの定義を関数内に移動するため、ここでは型のみ定義
 export const createColumns = (
   handleEditGroup: (group: Group) => void,
-  handleDeleteGroup: (group: Group) => void
+  handleDeleteGroup: (group: Group) => void,
+  handleManageMembers?: (group: Group) => void
 ): ColumnDef<Group>[] => [
   {
     id: "select",
@@ -101,6 +103,25 @@ export const createColumns = (
     },
   },
   {
+    accessorKey: "members",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Members
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const group = row.original;
+      return <GroupMemberCount groupId={group.id} />;
+    },
+    enableSorting: false,
+  },
+  {
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
@@ -124,6 +145,12 @@ export const createColumns = (
             <DropdownMenuItem onClick={() => handleEditGroup(group)}>
               グループ情報を編集
             </DropdownMenuItem>
+            {handleManageMembers && (
+              <DropdownMenuItem onClick={() => handleManageMembers(group)}>
+                メンバー管理
+              </DropdownMenuItem>
+            )}
+            <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => handleDeleteGroup(group)}
               className="text-red-600 focus:text-red-600"
@@ -143,6 +170,7 @@ interface GroupTableProps {
   onGroupUpdate?: (updatedGroup: Group) => void;
   onGroupDelete?: (groupId: number) => void;
   onBulkGroupDelete?: (groupIds: number[]) => void;
+  onManageMembers?: (group: Group) => void;
 }
 
 export function GroupTable({
@@ -151,6 +179,7 @@ export function GroupTable({
   onGroupUpdate,
   onGroupDelete,
   onBulkGroupDelete,
+  onManageMembers,
 }: GroupTableProps) {
   const [editingGroup, setEditingGroup] = React.useState<Group | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
@@ -236,7 +265,7 @@ export function GroupTable({
     setIsBulkDeleting(false);
   };
 
-  const columns = createColumns(handleEditGroup, handleDeleteGroup);
+  const columns = createColumns(handleEditGroup, handleDeleteGroup, onManageMembers);
   const { table } = useGroupTable(data, columns);
 
   // 選択された行の数を取得
@@ -301,6 +330,7 @@ export function GroupTable({
                     {column.id === "id" && "ID"}
                     {column.id === "name" && "Name"}
                     {column.id === "description" && "Description"}
+                    {column.id === "members" && "Members"}
                   </DropdownMenuCheckboxItem>
                 );
               })}

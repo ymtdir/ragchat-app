@@ -127,7 +127,12 @@ class MembershipService:
         query = db.query(Membership).join(User).filter(Membership.group_id == group_id)
 
         if not include_deleted:
-            query = query.filter(Membership.deleted_at.is_(None))
+            query = query.filter(
+                and_(
+                    Membership.deleted_at.is_(None),
+                    User.deleted_at.is_(None)  # 削除されたユーザーも除外
+                )
+            )
 
         memberships = query.all()
 
