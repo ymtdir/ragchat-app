@@ -22,6 +22,9 @@ from sqlalchemy.orm import sessionmaker
 from app.main import app
 from app.config.database import get_db, Base
 
+# テスト実行時の環境変数を設定（SQLiteを使用）
+os.environ["DATABASE_URL"] = "sqlite:///./test.db"
+
 # テスト用データベース設定
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
 
