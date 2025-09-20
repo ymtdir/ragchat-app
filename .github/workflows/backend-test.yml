@@ -17,6 +17,9 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    env:
+      DATABASE_URL: sqlite:///./test.db
+
     steps:
       # リポジトリのコードをチェックアウト
       - uses: actions/checkout@v4
@@ -40,6 +43,8 @@ jobs:
       # フォーマットチェック
       - name: Check code formatting
         working-directory: ./backend
+        env:
+          DATABASE_URL: sqlite:///./test.db
         run: |
           # blackによるフォーマットチェック
           black --check app/ tests/
@@ -47,6 +52,8 @@ jobs:
       # Lint実行
       - name: Run lint
         working-directory: ./backend
+        env:
+          DATABASE_URL: sqlite:///./test.db
         run: |
           # コードの品質チェック
           flake8 app/ tests/ --max-line-length=88
@@ -54,6 +61,8 @@ jobs:
       # テストとカバレッジの実行
       - name: Run tests with coverage
         working-directory: ./backend # backendディレクトリで実行
+        env:
+          DATABASE_URL: sqlite:///./test.db
         run: |
           python -m pytest -v tests/ --cov=app --cov-report=term-missing --cov-report=xml
 

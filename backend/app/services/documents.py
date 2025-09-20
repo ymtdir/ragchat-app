@@ -191,8 +191,7 @@ class DocumentService:
                         "id": results["ids"][0][i],
                         "title": results["metadatas"][0][i].get("title", "無題"),
                         "text": results["documents"][0][i],
-                        "similarity_score": 1
-                        - results["distances"][0][i],  # cosine距離から類似度に変換
+                        "similarity_score": 1 - results["distances"][0][i],
                     }
                 )
 

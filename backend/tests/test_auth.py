@@ -329,8 +329,8 @@ class TestAuthService:
         assert token_data is None
 
 
-class TestAuthIntegration:
-    """認証機能の統合テストクラス"""
+class TestAuthServiceMethods:
+    """認証サービスのメソッドテストクラス（モック使用）"""
 
     def test_auth_lifecycle(self, client: TestClient):
         """認証ライフサイクルの統合テスト
@@ -395,3 +395,92 @@ class TestAuthIntegration:
             UserService.create_user.reset_mock()
             AuthService.authenticate_user.reset_mock()
             AuthService.create_access_token.reset_mock()
+
+    def test_logout_success(self, client: TestClient):
+        """ログアウト - 成功"""
+        # ログアウトエンドポイントをテスト
+        response = client.post("/api/auth/logout")
+
+        assert response.status_code == 200
+        data = response.json()
+        assert "message" in data
+        assert "ログアウトしました" in data["message"]
+
+    def test_login_internal_error(self, client: TestClient):
+        """ログイン - 内部エラー"""
+        # モックデータベースセッション
+        mock_db = MagicMock()
+
+        # AuthServiceのメソッドをモック化（例外を発生させる）
+        AuthService.login_user = MagicMock(
+            side_effect=Exception("データベース接続エラー")
+        )
+
+        # データベースセッションをオーバーライド
+        def override_get_db():
+            yield mock_db
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        try:
+            # ログイン（内部エラー）
+            login_data = {"email": "test@example.com", "password": "password123"}
+            response = client.post("/api/auth/login", json=login_data)
+
+            assert response.status_code == 500
+            assert "ログイン処理中にエラーが発生しました" in response.json()["detail"]
+
+            # サービスメソッドが正しく呼ばれたことを確認
+            from app.schemas.auth import UserLogin
+
+            expected_user_login = UserLogin(**login_data)
+            AuthService.login_user.assert_called_once_with(mock_db, expected_user_login)
+        finally:
+            # 依存性オーバーライドをクリア
+            app.dependency_overrides.clear()
+
+    def test_get_token_from_header_none_authorization(self):
+        """トークン抽出 - 認証ヘッダーがNone"""
+        result = AuthService.get_token_from_header(None)
+        assert result is None
+
+    def test_get_token_from_header_invalid_format(self):
+        """トークン抽出 - 無効な形式の認証ヘッダー"""
+        result = AuthService.get_token_from_header("InvalidToken")
+        assert result is None
+
+    def test_get_token_from_header_valid_format(self):
+        """トークン抽出 - 有効な形式の認証ヘッダー"""
+        result = AuthService.get_token_from_header("Bearer valid_token_123")
+        assert result == "valid_token_123"
+
+    def test_create_access_token_with_expires_delta(self):
+        """アクセストークン作成 - 有効期限指定あり"""
+        from datetime import timedelta
+
+        data = {"sub": "test@example.com"}
+        expires_delta = timedelta(minutes=30)
+
+        token = AuthService.create_access_token(data, expires_delta)
+
+        # トークンが作成されることを確認
+        assert isinstance(token, str)
+        assert len(token) > 0
+
+    def test_verify_token_invalid_email(self):
+        """トークン検証 - 無効なメールアドレス"""
+        # 無効なペイロード（emailがNone）をモック
+        with patch("app.services.auth.jwt.decode") as mock_decode:
+            mock_decode.return_value = {"sub": None}
+
+            result = AuthService.verify_token("invalid_token")
+            assert result is None
+
+    def test_verify_token_missing_email(self):
+        """トークン検証 - メールアドレスが存在しない"""
+        # メールアドレスが存在しないペイロードをモック
+        with patch("app.services.auth.jwt.decode") as mock_decode:
+            mock_decode.return_value = {"other_field": "value"}
+
+            result = AuthService.verify_token("invalid_token")
+            assert result is None

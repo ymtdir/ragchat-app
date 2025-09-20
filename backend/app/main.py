@@ -24,7 +24,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .config import settings
 from .config.logging import setup_logging
 from .config.database import create_tables
-from .routers import health, documents, users, auth, groups
+from .routers import health, documents, users, auth, groups, memberships
 
 # ログ設定の初期化
 setup_logging()
@@ -62,3 +62,4 @@ app.include_router(documents.router)
 app.include_router(users.router)
 app.include_router(auth.router)
 app.include_router(groups.router)
+app.include_router(memberships.router)

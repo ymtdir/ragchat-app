@@ -92,6 +92,27 @@ python -m pytest
 python -m pytest --cov=app --cov-report=html --cov-report=term
 ```
 
+**カバレッジの詳細実行方法:**
+
+```bash
+# 基本的なカバレッジ実行
+python -m pytest --cov=app --cov-report=term
+
+# HTMLレポート付きカバレッジ実行
+python -m pytest --cov=app --cov-report=term --cov-report=html
+
+# 特定のモジュールのカバレッジ確認
+python -m pytest --cov=app.services.memberships --cov-report=term
+python -m pytest --cov=app.models --cov-report=term
+python -m pytest --cov=app.routers --cov-report=term
+
+# カバレッジの閾値を設定（70%未満で失敗）
+python -m pytest --cov=app --cov-fail-under=70
+
+# HTMLレポートの確認
+# htmlcov/index.html をブラウザで開く
+```
+
 **特定のテストファイルを実行:**
 
 ```bash

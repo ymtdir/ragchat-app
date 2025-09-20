@@ -570,3 +570,168 @@ class TestDocumentsIntegration:
         finally:
             # オーバーライドをクリア
             app.dependency_overrides.clear()
+
+    def test_get_collection_info_success(self, client: TestClient):
+        """コレクション情報取得 - 成功"""
+        # モック文書管理サービス
+        mock_service = MagicMock()
+        mock_info = {
+            "collection_name": "documents",
+            "document_count": 10,
+            "storage_type": "local_persistent",
+            "path": "./vector_db",
+        }
+
+        async def mock_get_collection_info():
+            return mock_info
+
+        mock_service.get_collection_info = mock_get_collection_info
+
+        # 依存性をオーバーライド
+        app.dependency_overrides[get_documents_service] = lambda: mock_service
+
+        try:
+            # コレクション情報取得
+            response = client.get("/api/documents/info")
+            assert response.status_code == 200
+            data = response.json()
+            assert data["collection_name"] == "documents"
+            assert data["document_count"] == 10
+            assert data["storage_type"] == "local_persistent"
+            assert data["path"] == "./vector_db"
+        finally:
+            # オーバーライドをクリア
+            app.dependency_overrides.clear()
+
+    def test_get_collection_info_service_error(self, client: TestClient):
+        """コレクション情報取得 - サービスエラー"""
+        # モック文書管理サービス
+        mock_service = MagicMock()
+
+        async def mock_get_collection_info_error():
+            raise Exception("データベース接続エラー")
+
+        mock_service.get_collection_info = mock_get_collection_info_error
+
+        # 依存性をオーバーライド
+        app.dependency_overrides[get_documents_service] = lambda: mock_service
+
+        try:
+            # コレクション情報取得（エラー）
+            response = client.get("/api/documents/info")
+            assert response.status_code == 500
+            assert "情報の取得に失敗しました" in response.json()["error"]
+        finally:
+            # オーバーライドをクリア
+            app.dependency_overrides.clear()
+
+    def test_get_all_documents_service_error(self, client: TestClient):
+        """全文書取得 - サービスエラー"""
+        # モック文書管理サービス
+        mock_service = MagicMock()
+
+        async def mock_get_all_documents_error():
+            raise Exception("データベース接続エラー")
+
+        mock_service.get_all_documents = mock_get_all_documents_error
+
+        # 依存性をオーバーライド
+        app.dependency_overrides[get_documents_service] = lambda: mock_service
+
+        try:
+            # 全文書取得（エラー）
+            response = client.get("/api/documents/")
+            assert response.status_code == 500
+            assert "文書の取得に失敗しました" in response.json()["error"]
+        finally:
+            # オーバーライドをクリア
+            app.dependency_overrides.clear()
+
+    def test_search_documents_service_error(self, client: TestClient):
+        """文書検索 - サービスエラー"""
+        # モック文書管理サービス
+        mock_service = MagicMock()
+
+        async def mock_search_similar_documents_error():
+            raise Exception("検索エラー")
+
+        mock_service.search_similar_documents = mock_search_similar_documents_error
+
+        # 依存性をオーバーライド
+        app.dependency_overrides[get_documents_service] = lambda: mock_service
+
+        try:
+            # 文書検索（エラー）
+            search_request = {"query": "テスト", "n_results": 5}
+            response = client.post("/api/documents/search", json=search_request)
+            assert response.status_code == 500
+            assert "文書の検索に失敗しました" in response.json()["error"]
+        finally:
+            # オーバーライドをクリア
+            app.dependency_overrides.clear()
+
+    def test_delete_all_documents_service_error(self, client: TestClient):
+        """全文書削除 - サービスエラー"""
+        # モック文書管理サービス
+        mock_service = MagicMock()
+
+        async def mock_delete_all_documents_error():
+            raise Exception("削除エラー")
+
+        mock_service.delete_all_documents = mock_delete_all_documents_error
+
+        # 依存性をオーバーライド
+        app.dependency_overrides[get_documents_service] = lambda: mock_service
+
+        try:
+            # 全文書削除（エラー）
+            response = client.delete("/api/documents/")
+            assert response.status_code == 500
+            assert "全文書の削除に失敗しました" in response.json()["error"]
+        finally:
+            # オーバーライドをクリア
+            app.dependency_overrides.clear()
+
+    def test_delete_document_service_error(self, client: TestClient):
+        """文書削除 - サービスエラー"""
+        # モック文書管理サービス
+        mock_service = MagicMock()
+
+        async def mock_delete_document_error():
+            raise Exception("削除エラー")
+
+        mock_service.delete_document = mock_delete_document_error
+
+        # 依存性をオーバーライド
+        app.dependency_overrides[get_documents_service] = lambda: mock_service
+
+        try:
+            # 文書削除（エラー）
+            response = client.delete("/api/documents/doc_001")
+            assert response.status_code == 500
+            assert "文書の削除に失敗しました" in response.json()["error"]
+        finally:
+            # オーバーライドをクリア
+            app.dependency_overrides.clear()
+
+    def test_get_document_service_error(self, client: TestClient):
+        """文書取得 - サービスエラー"""
+        # モック文書管理サービス
+        mock_service = MagicMock()
+
+        async def mock_get_document_error():
+            raise Exception("取得エラー")
+
+        mock_service.get_document = mock_get_document_error
+
+        # 依存性をオーバーライド
+        app.dependency_overrides[get_documents_service] = lambda: mock_service
+
+        try:
+            # 文書取得（エラー）
+            response = client.get("/api/documents/doc_001")
+            assert response.status_code == 404
+            assert "文書が見つかりません" in response.json()["error"]
+        finally:
+            # オーバーライドをクリア
+            app.dependency_overrides.clear()

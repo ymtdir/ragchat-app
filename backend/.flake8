@@ -7,3 +7,4 @@ exclude =
     .venv,
     vector_db,
     logs
+ignore = E231

@@ -13,24 +13,109 @@ FastAPIアプリケーションのテスト用設定とフィクスチャを定�
     python -m pytest tests/test_health.py -v
 """
 
+import os
 import pytest
+import tempfile
 from fastapi.testclient import TestClient
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 from app.main import app
+from app.config.database import get_db, Base
+
+# テスト実行時の環境変数を設定（SQLiteを使用）
+os.environ["DATABASE_URL"] = "sqlite:///./test.db"
+
+# テスト用データベース設定
+SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
+
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
+)
+TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
+def db_session():
+    """テスト用データベースセッション（トランザクション管理）"""
+    # 各テストで独立したデータベースファイルを使用
+    with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp_file:
+        test_db_url = f"sqlite:///{tmp_file.name}"
+
+        # テスト用エンジンを作成
+        test_engine = create_engine(
+            test_db_url, connect_args={"check_same_thread": False}
+        )
+        TestSessionLocal = sessionmaker(
+            autocommit=False, autoflush=False, bind=test_engine
+        )
+
+        # テーブル作成
+        Base.metadata.create_all(bind=test_engine)
+
+        # セッションを作成（トランザクション管理なし）
+        session = TestSessionLocal()
+
+        try:
+            yield session
+        finally:
+            session.close()
+            # テスト用データベースファイルを削除
+            try:
+                os.unlink(tmp_file.name)
+            except OSError:
+                pass
+
+
+@pytest.fixture(scope="function")
+def db(db_session):
+    """既存のテスト用の互換性のための別名"""
+    return db_session
+
+
+@pytest.fixture(scope="function")
 def client():
-    """FastAPIアプリケーション用のテストクライアントを作成
+    """FastAPIアプリケーション用のテストクライアント（独立セッション）"""
+    # 各テストで独立したデータベースファイルを使用
+    with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp_file:
+        test_db_url = f"sqlite:///{tmp_file.name}"
 
-    FastAPIアプリケーションに対してHTTPリクエストを送信するための
-    TestClientインスタンスを提供するフィクスチャです。
+        # テスト用エンジンを作成
+        test_engine = create_engine(
+            test_db_url, connect_args={"check_same_thread": False}
+        )
+        TestSessionLocal = sessionmaker(
+            autocommit=False, autoflush=False, bind=test_engine
+        )
 
-    Returns:
-        設定済みのFastAPIアプリ用テストクライアント
+        # すべてのモデルをインポートしてテーブルを作成
+        from app.models.user import User  # noqa: F401
+        from app.models.group import Group  # noqa: F401
+        from app.models.membership import Membership  # noqa: F401
 
-    使用例:
-        def test_endpoint(client):
-            response = client.get("/")
-            assert response.status_code == 200
-    """
-    return TestClient(app)
+        # テーブル作成
+        Base.metadata.create_all(bind=test_engine)
+
+        def override_get_db():
+            connection = test_engine.connect()
+            transaction = connection.begin()
+            session = TestSessionLocal(bind=connection)
+            try:
+                yield session
+            finally:
+                session.close()
+                transaction.rollback()
+                connection.close()
+
+        app.dependency_overrides[get_db] = override_get_db
+
+        with TestClient(app) as client:
+            yield client
+
+        # 依存性オーバーライドをクリア
+        app.dependency_overrides.clear()
+
+        # テスト用データベースファイルを削除
+        try:
+            os.unlink(tmp_file.name)
+        except OSError:
+            pass
